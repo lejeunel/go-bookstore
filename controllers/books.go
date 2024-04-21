@@ -37,8 +37,13 @@ func (h *BookHandler) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.
 	return out, nil
 }
 
-func (h *BookHandler) Create(ctx context.Context, input *m.CreateBookInput) (*m.BookOutput, error) {
-	book, err := h.repo.Create(ctx, input)
+func (h *BookHandler) Create(ctx context.Context, in *m.CreateBookInput) (*m.BookOutput, error) {
+	book, err := h.repo.Create(ctx, &m.Book{Title: in.Body.Title,
+		Author: in.Body.Author})
 
-	return book, err
+	out := &m.BookOutput{}
+	out.Body.ID = book.ID
+	out.Body.Title = book.Title
+	out.Body.Author = book.Author
+	return out, err
 }

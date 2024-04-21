@@ -30,19 +30,15 @@ func NewBookRepo(db *sqlx.DB) BookRepo {
 
 }
 
-func (r *BookRepo) Create(ctx context.Context, in *m.CreateBookInput) (*m.BookOutput, error) {
+func (r *BookRepo) Create(ctx context.Context, in *m.Book) (*m.Book, error) {
 	id := uuid.New()
 	now := time.Now().String()
 	query := "INSERT INTO books (id, title, author, created_at, updated_at) VALUES (?, ?, ?, ?, ?)"
-	_, err := r.Db.Exec(query, id, in.Body.Title, in.Body.Author, now,
+	_, err := r.Db.Exec(query, id, in.Title, in.Author, now,
 		now)
 
-	out := &m.BookOutput{}
-	out.Body.ID = id
-	out.Body.Title = in.Body.Title
-	out.Body.Author = in.Body.Author
-
-	return out, err
+	return &m.Book{ID: id, Title: in.Title,
+		Author: in.Author, CreatedAt: now, UpdatedAt: now}, err
 }
 
 func (r *BookRepo) GetOne(ctx context.Context, id string) (*m.Book, error) {
