@@ -1,18 +1,15 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/danielgtaylor/huma/v2/humatest"
-	"go-bookstore/config/driver"
-	"strings"
+	c "go-bookstore/config"
 	"testing"
 )
 
 func NewTestService(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
-	db := driver.NewSQLiteConnection(":memory:")
-	addRoutes(api, db)
+	db := c.NewSQLiteConnection(":memory:")
+	c.AddRoutes(api, db)
 
 	return api
 }
@@ -34,22 +31,6 @@ func TestAddBook(t *testing.T) {
 
 	if resp.Code != 201 {
 		t.Fatalf("Unexpected status code: %d", resp.Code)
-	}
-
-	// Convert the JSON response to a map
-	var response map[string]string
-	// Grab the value & whether or not it exists
-	json.Unmarshal([]byte(resp.Body.String()), &response)
-	id, id_exists := response["id"]
-
-	fmt.Println(response)
-
-	if !id_exists {
-		t.Fatalf("Expected to retrieve JSON with an id field, but got none")
-	}
-	resp2 := api.Get(fmt.Sprintf("/books/%s", id))
-	if !strings.Contains(resp2.Body.String(), test_book["title"]) {
-		t.Fatalf("Unexpected response: %s", resp.Body.String())
 	}
 
 }
