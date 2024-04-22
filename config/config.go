@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	Port int `default:"8000"`
-	Path string
+	Port        int `default:"8000"`
+	Path        string
+	MaxPageSize int `default:"10"`
 }
 
 func NewConfig() *Config {

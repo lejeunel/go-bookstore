@@ -11,13 +11,24 @@ import (
 )
 
 type BookHandler struct {
-	repo r.BookRepo
+	repo m.BookRepo
 }
 
-func NewBookHandler(db *sqlx.DB) *BookHandler {
-	return &BookHandler{
-		repo: r.NewBookRepo(db),
+func NewSQLBookHandler(db *sqlx.DB, p *r.Paginator) *BookHandler {
+	return &BookHandler{repo: r.NewSQLBookRepo(db, p)}
+}
+
+func (h *BookHandler) GetAll(ctx context.Context, input *m.PaginationParams) (*m.BookOutputList, error) {
+	books, _ := h.repo.GetAll(ctx, *input)
+
+	var out m.BookOutputList
+	for _, b := range books {
+		new_book := m.BookOutputBody{Title: b.Title,
+			Author: b.Author, Id: b.Id}
+		out.Body = append(out.Body, new_book)
 	}
+
+	return &out, nil
 }
 
 func (h *BookHandler) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.BookOutput, error) {
@@ -29,21 +40,17 @@ func (h *BookHandler) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.
 
 	}
 
-	out := &m.BookOutput{}
-	out.Body.ID = book.ID
-	out.Body.Title = book.Title
-	out.Body.Author = book.Author
+	out := &m.BookOutput{Body: m.BookOutputBody{Id: book.Id, Title: book.Title,
+		Author: book.Author}}
 
 	return out, nil
 }
 
-func (h *BookHandler) Create(ctx context.Context, in *m.CreateBookInput) (*m.BookOutput, error) {
+func (h *BookHandler) Create(ctx context.Context, in *m.BookInput) (*m.BookOutput, error) {
 	book, err := h.repo.Create(ctx, &m.Book{Title: in.Body.Title,
 		Author: in.Body.Author})
 
-	out := &m.BookOutput{}
-	out.Body.ID = book.ID
-	out.Body.Title = book.Title
-	out.Body.Author = book.Author
+	out := &m.BookOutput{Body: m.BookOutputBody{Id: book.Id, Title: book.Title,
+		Author: book.Author}}
 	return out, err
 }

@@ -6,26 +6,34 @@ import (
 )
 
 type Book struct {
-	ID        uuid.UUID `db:"id"`
-	Title     string    `db:"title" json:"title" doc:"Title of book"`
-	Author    string    `db:"author" json:"author" doc:"Name of author"`
+	Id        uuid.UUID `db:"id"`
+	Title     string    `db:"title"`
+	Author    string    `db:"author"`
 	CreatedAt string    `db:"created_at"`
 	UpdatedAt string    `db:"updated_at"`
 }
 
-type CreateBookInput struct {
-	Body struct {
-		Title  string `json:"title"`
-		Author string `json:"author"`
-	}
+type BookInputBody struct {
+	Title  string `json:"title" doc:"Title of book"`
+	Author string `json:"author" doc:"Name of author"`
+}
+
+type BookInput struct {
+	Body BookInputBody
+}
+
+type BookOutputBody struct {
+	Id     uuid.UUID `json:"id"`
+	Title  string    `json:"title"`
+	Author string    `json:"author"`
 }
 
 type BookOutput struct {
-	Body struct {
-		ID     uuid.UUID `db:"id"`
-		Title  string    `json:"title"`
-		Author string    `json:"author"`
-	}
+	Body BookOutputBody
+}
+
+type BookOutputList struct {
+	Body []BookOutputBody
 }
 
 type GetOneBookInput struct {
@@ -33,6 +41,7 @@ type GetOneBookInput struct {
 }
 
 type BookRepo interface {
-	Create(ctx context.Context, b *CreateBookInput) (*BookOutput, error)
-	GetOne(ctx context.Context, input *GetOneBookInput) (*Book, error)
+	Create(ctx context.Context, b *Book) (*Book, error)
+	GetOne(ctx context.Context, id string) (*Book, error)
+	GetAll(ctx context.Context, id PaginationParams) ([]Book, error)
 }
