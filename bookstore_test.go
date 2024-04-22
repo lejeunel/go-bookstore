@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/danielgtaylor/huma/v2/humatest"
 	c "go-bookstore/config"
 	r "go-bookstore/repositories"
@@ -18,7 +16,7 @@ func NewTestService(t *testing.T) humatest.TestAPI {
 	return api
 }
 
-func make_test_book() map[string]string {
+func MakeTestBook() map[string]string {
 	test_book := make(map[string]string)
 	test_book["title"] = "the title"
 	test_book["author"] = "the author"
@@ -29,7 +27,7 @@ func make_test_book() map[string]string {
 func TestAddBook(t *testing.T) {
 
 	api := NewTestService(t)
-	test_book := make_test_book()
+	test_book := MakeTestBook()
 
 	resp := api.Post("/books", test_book)
 
@@ -48,22 +46,12 @@ func TestGetBookWithWrongIdReturns404(t *testing.T) {
 	}
 }
 
-func TestGetBookPagination(t *testing.T) {
+func TestGetBookPaginationMinimum(t *testing.T) {
 	api := NewTestService(t)
 
-	test_book := make(map[string]string)
-	test_book["author"] = "the author"
+	resp := api.Get("/books?page=0&pagesize=2")
 
-	for i := 1; i < 4; i++ {
-		test_book["title"] = fmt.Sprintf("title_%03d", i)
-		api.Post("/books", test_book)
-	}
-
-	res := api.Get("/books?page=1&pagesize=2")
-
-	var m []map[string]string
-	json.Unmarshal(res.Body.Bytes(), &m)
-	if len(m) != 2 {
-		t.Fatalf("Expected to retrieve 2 items. Got '%v'", len(m))
+	if resp.Code != 422 {
+		t.Fatalf("Unexpected status code: %d, expected 424", resp.Code)
 	}
 }

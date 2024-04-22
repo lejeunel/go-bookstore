@@ -18,17 +18,19 @@ func NewSQLBookHandler(db *sqlx.DB, p *r.Paginator) *BookHandler {
 	return &BookHandler{repo: r.NewSQLBookRepo(db, p)}
 }
 
-func (h *BookHandler) GetAll(ctx context.Context, input *m.PaginationParams) (*m.BookOutputList, error) {
-	books, _ := h.repo.GetAll(ctx, *input)
+func (h *BookHandler) GetAll(ctx context.Context, input *m.PaginationParams) (*m.BookPaginatedOutput, error) {
+	books, pagination, err := h.repo.GetAll(ctx, *input)
 
-	var out m.BookOutputList
+	var out m.BookPaginatedOutput
 	for _, b := range books {
-		new_book := m.BookOutputBody{Title: b.Title,
+		new_book := m.BookOutputRecord{Title: b.Title,
 			Author: b.Author, Id: b.Id}
-		out.Body = append(out.Body, new_book)
+		out.Body.Data = append(out.Body.Data, new_book)
 	}
 
-	return &out, nil
+	out.Body.Pagination = pagination
+
+	return &out, err
 }
 
 func (h *BookHandler) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.BookOutput, error) {
@@ -40,7 +42,7 @@ func (h *BookHandler) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.
 
 	}
 
-	out := &m.BookOutput{Body: m.BookOutputBody{Id: book.Id, Title: book.Title,
+	out := &m.BookOutput{Body: m.BookOutputRecord{Id: book.Id, Title: book.Title,
 		Author: book.Author}}
 
 	return out, nil
@@ -50,7 +52,7 @@ func (h *BookHandler) Create(ctx context.Context, in *m.BookInput) (*m.BookOutpu
 	book, err := h.repo.Create(ctx, &m.Book{Title: in.Body.Title,
 		Author: in.Body.Author})
 
-	out := &m.BookOutput{Body: m.BookOutputBody{Id: book.Id, Title: book.Title,
+	out := &m.BookOutput{Body: m.BookOutputRecord{Id: book.Id, Title: book.Title,
 		Author: book.Author}}
 	return out, err
 }

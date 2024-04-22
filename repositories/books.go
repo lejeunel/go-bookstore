@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -49,10 +50,13 @@ func (r *SQLBookRepo) GetOne(ctx context.Context, id string) (*m.Book, error) {
 	return &b, err
 }
 
-func (r *SQLBookRepo) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Book, error) {
-	limit, offset := r.Paginator.pagination_to_limit_offset(in)
+func (r *SQLBookRepo) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Book, *m.Pagination, error) {
+	limit, offset := r.Paginator.PaginationToLimitAndOffset(in)
 	books := []m.Book{}
-	err := r.Db.Select(&books, "SELECT * FROM books LIMIT $1 OFFSET $2", limit, offset)
+	err_select := r.Db.Select(&books, "SELECT * FROM books LIMIT $1 OFFSET $2", limit, offset)
+	var count int
+	err_count := r.Db.Get(&count, "SELECT count(*) FROM books")
+	pagination := r.Paginator.MakePaginationMetaData(count, limit, in.Page)
 
-	return books, err
+	return books, pagination, errors.Join(err_select, err_count)
 }

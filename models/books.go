@@ -22,18 +22,21 @@ type BookInput struct {
 	Body BookInputBody
 }
 
-type BookOutputBody struct {
+type BookOutputRecord struct {
 	Id     uuid.UUID `json:"id"`
 	Title  string    `json:"title"`
 	Author string    `json:"author"`
 }
 
 type BookOutput struct {
-	Body BookOutputBody
+	Body BookOutputRecord
 }
 
-type BookOutputList struct {
-	Body []BookOutputBody
+type BookPaginatedOutput struct {
+	Body struct {
+		Pagination *Pagination        `json:"pagination"`
+		Data       []BookOutputRecord `json:"data"`
+	}
 }
 
 type GetOneBookInput struct {
@@ -43,5 +46,5 @@ type GetOneBookInput struct {
 type BookRepo interface {
 	Create(ctx context.Context, b *Book) (*Book, error)
 	GetOne(ctx context.Context, id string) (*Book, error)
-	GetAll(ctx context.Context, id PaginationParams) ([]Book, error)
+	GetAll(ctx context.Context, id PaginationParams) ([]Book, *Pagination, error)
 }
