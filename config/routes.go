@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/jmoiron/sqlx"
-	"go-bookstore/controllers"
+	c "go-bookstore/controllers"
 	r "go-bookstore/repositories"
 	"net/http"
 
@@ -10,11 +10,8 @@ import (
 )
 
 func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
-	bookHandler := controllers.NewSQLBookHandler(db, p)
+	bookHandler := &c.BookHandler{Repo: r.NewSQLBookRepo(db, p)}
 
-	// TODO add prefix to all paths here...
-
-	// v1.Handle("/book/{id}", mw.JWTAuthMiddleware(http.HandlerFunc(bookHandler.DeleteBook))).Methods(http.MethodDelete)
 	huma.Register(api, huma.Operation{
 		OperationID: "get-book",
 		Method:      http.MethodGet,
