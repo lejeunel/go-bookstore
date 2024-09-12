@@ -12,26 +12,12 @@ import (
 	"time"
 )
 
-var book_schema = `
-CREATE TABLE IF NOT EXISTS books (
-    id varchar(16),
-    title text,
-	created_at text,
-	updated_at text
-);
-CREATE TABLE IF NOT EXISTS book_author_assoc (
-    book_id varchar(16),
-    author_id varchar(16)
-);`
-
 type SQLBookRepo struct {
 	Db        *sqlx.DB
 	Paginator *r.Paginator
 }
 
 func NewSQLBookRepo(db *sqlx.DB, paginator *r.Paginator) *SQLBookRepo {
-
-	db.MustExec(book_schema)
 
 	return &SQLBookRepo{Db: db, Paginator: paginator}
 

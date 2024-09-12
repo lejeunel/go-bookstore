@@ -11,24 +11,12 @@ import (
 	"time"
 )
 
-var author_schema = `
-CREATE TABLE IF NOT EXISTS authors (
-    id varchar(16),
-    first_name text,
-    last_name text,
-    date_of_birth text,
-	created_at text,
-	updated_at text
-);`
-
 type SQLAuthorRepo struct {
 	Db        *sqlx.DB
 	Paginator *r.Paginator
 }
 
 func NewSQLAuthorRepo(db *sqlx.DB, paginator *r.Paginator) *SQLAuthorRepo {
-
-	db.MustExec(author_schema)
 
 	return &SQLAuthorRepo{Db: db, Paginator: paginator}
 
