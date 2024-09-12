@@ -31,7 +31,7 @@ func (h *AuthorHTTPController) GetAll(ctx context.Context, pagin *m.PaginationPa
 	return &out, nil
 }
 
-func (h *AuthorHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.AuthorOutputRecord, error) {
+func (h *AuthorHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.AuthorOutput, error) {
 	a, err := h.AuthorService.GetOne(ctx, input.Id)
 
 	if err != nil {
@@ -40,21 +40,21 @@ func (h *AuthorHTTPController) GetOne(ctx context.Context, input *m.GetOneBookIn
 
 	}
 
-	out := m.AuthorOutputRecord{FirstName: a.FirstName,
-		LastName: a.LastName, DateOfBirth: a.DateOfBirth}
+	out := m.AuthorOutput{Body: m.AuthorOutputRecord{Id: a.Id, FirstName: a.FirstName,
+		LastName: a.LastName, DateOfBirth: a.DateOfBirth}}
 
 	return &out, nil
 }
 
-func (h *AuthorHTTPController) Create(ctx context.Context, in *m.AuthorInput) (*m.AuthorOutputRecord, error) {
+func (h *AuthorHTTPController) Create(ctx context.Context, in *m.AuthorInput) (*m.AuthorOutput, error) {
 	a, err := h.AuthorService.Create(ctx, &m.Author{FirstName: in.Body.FirstName,
 		LastName: in.Body.LastName, DateOfBirth: in.Body.DateOfBirth})
 
 	if err != nil {
 		return nil, err
 	}
-	out := m.AuthorOutputRecord{Id: a.Id, FirstName: a.FirstName,
-		LastName: a.LastName, DateOfBirth: a.DateOfBirth}
+	out := m.AuthorOutput{Body: m.AuthorOutputRecord{Id: a.Id, FirstName: a.FirstName,
+		LastName: a.LastName, DateOfBirth: a.DateOfBirth}}
 
 	return &out, err
 }

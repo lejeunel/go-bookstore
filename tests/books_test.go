@@ -1,9 +1,11 @@
-package main
+package tests
 
 import (
+	"encoding/json"
 	"github.com/danielgtaylor/huma/v2/humatest"
 	goose "github.com/pressly/goose/v3"
 	a "go-bookstore/app"
+	m "go-bookstore/models"
 	r "go-bookstore/repositories"
 	routes "go-bookstore/routes"
 	"testing"
@@ -42,6 +44,25 @@ func TestAddBook(t *testing.T) {
 	})
 
 }
+func TestGetOneBook(t *testing.T) {
+
+	api := NewTestService(t)
+	book := map[string]any{"title": "the first title"}
+
+	resp := api.Post("/books", book)
+
+	var createdBook, retrievedBook *m.BookOutputRecord
+	json.NewDecoder(resp.Body).Decode(&createdBook)
+
+	resp = api.Get("/books/" + createdBook.Id.String())
+	json.NewDecoder(resp.Body).Decode(&retrievedBook)
+
+	if retrievedBook.Title != createdBook.Title {
+		t.Fatalf("Unexpected retrieved book. Created %v, retrieved %v", createdBook, retrievedBook)
+
+	}
+
+}
 
 func TestGetAllBooks(t *testing.T) {
 
@@ -52,22 +73,6 @@ func TestGetAllBooks(t *testing.T) {
 	api.Post("/books", first)
 	api.Post("/books", second)
 	resp := api.Get("/books")
-
-	if resp.Code != 200 {
-		t.Fatalf("Unexpected status code: %d", resp.Code)
-	}
-
-}
-
-func TestGetAllAuthors(t *testing.T) {
-
-	api := NewTestService(t)
-	first := map[string]any{"first_name": "john", "last_name": "doe"}
-	second := map[string]any{"first_name": "willy", "last_name": "wonka"}
-
-	api.Post("/authors", first)
-	api.Post("/authors", second)
-	resp := api.Get("/authors")
 
 	if resp.Code != 200 {
 		t.Fatalf("Unexpected status code: %d", resp.Code)

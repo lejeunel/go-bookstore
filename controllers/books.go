@@ -39,7 +39,7 @@ func (h *BookHTTPController) GetAll(ctx context.Context, pagin *m.PaginationPara
 	return &out, err
 }
 
-func (h *BookHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.BookOutputRecord, error) {
+func (h *BookHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.BookOutput, error) {
 	book, err := h.BookService.GetOne(ctx, input.Id)
 
 	if err != nil {
@@ -48,19 +48,19 @@ func (h *BookHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInpu
 
 	}
 
-	out := buildNestedBookRecord(*book)
+	out := m.BookOutput{Body: buildNestedBookRecord(*book)}
 
 	return &out, nil
 }
 
-func (h *BookHTTPController) Create(ctx context.Context, in *m.BookInput) (*m.BookOutputRecord, error) {
+func (h *BookHTTPController) Create(ctx context.Context, in *m.BookInput) (*m.BookOutput, error) {
 	book, err := h.BookService.Create(ctx, &m.Book{Title: in.Body.Title})
 
 	if err != nil {
 		return nil, err
 	}
 
-	out := m.BookOutputRecord{Id: book.Id, Title: book.Title}
+	out := m.BookOutput{Body: buildNestedBookRecord(*book)}
 	return &out, err
 }
 

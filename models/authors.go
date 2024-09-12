@@ -25,7 +25,7 @@ type AuthorOutputRecord struct {
 	Id          uuid.UUID `json:"id"`
 	FirstName   string    `json:"first_name"`
 	LastName    string    `json:"last_name"`
-	DateOfBirth string    `json:"date_of_birth" doc:"Date of birth"`
+	DateOfBirth string    `json:"date_of_birth,omitempty"`
 }
 
 type AuthorOutput struct {

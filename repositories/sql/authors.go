@@ -38,7 +38,7 @@ func (r *SQLAuthorRepo) Create(ctx context.Context, a *m.Author) (*m.Author, err
 
 func (r *SQLAuthorRepo) GetOne(ctx context.Context, id string) (*m.Author, error) {
 	a := m.Author{}
-	err := r.Db.Get(&a, "SELECT * FROM authors WHERE id=$1", id)
+	err := r.Db.Get(&a, "SELECT id,first_name,last_name,date_of_birth FROM authors WHERE id=?", id)
 
 	if err != nil {
 		return nil, err

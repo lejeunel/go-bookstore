@@ -39,9 +39,13 @@ func (r *SQLBookRepo) Create(ctx context.Context, b *m.Book) (*m.Book, error) {
 
 func (r *SQLBookRepo) GetOne(ctx context.Context, id string) (*m.Book, error) {
 	b := m.Book{}
-	err := r.Db.Get(&b, "SELECT * FROM books WHERE id=$1", id)
+	err := r.Db.Get(&b, "SELECT id,title FROM books WHERE id=?", id)
 
-	return &b, err
+	if err != nil {
+		return nil, err
+	}
+
+	return &b, nil
 }
 
 func (r *SQLBookRepo) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Book, *m.Pagination, error) {
