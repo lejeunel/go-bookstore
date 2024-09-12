@@ -24,7 +24,7 @@ func (s *AuthorService) GetOne(ctx context.Context, id string) (*m.Author, error
 }
 
 func (s *AuthorService) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Author, *m.Pagination, error) {
-	authors, pagination, error := s.AuthorRepo.GetAll(ctx, in)
+	authors, pagination, err := s.AuthorRepo.GetAll(ctx, in)
 
-	return authors, pagination, error
+	return authors, pagination, err
 }

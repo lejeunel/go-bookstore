@@ -51,7 +51,7 @@ func (r *SQLAuthorRepo) GetOne(ctx context.Context, id string) (*m.Author, error
 func (r *SQLAuthorRepo) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Author, *m.Pagination, error) {
 	limit, offset := r.Paginator.PaginationToLimitAndOffset(in)
 	authors := []m.Author{}
-	err_select := r.Db.Select(&authors, "SELECT * FROM authors LIMIT $1 OFFSET $2", limit, offset)
+	err_select := r.Db.Select(&authors, "SELECT id,first_name,last_name,date_of_birth FROM authors LIMIT $1 OFFSET $2", limit, offset)
 	var count int
 	err_count := r.Db.Get(&count, "SELECT count(*) FROM authors")
 	pagination := r.Paginator.MakePaginationMetaData(count, limit, in.Page)

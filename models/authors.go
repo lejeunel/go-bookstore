@@ -5,16 +5,16 @@ import (
 )
 
 type Author struct {
-	Id          uuid.UUID
-	FirstName   string
-	LastName    string
-	DateOfBirth string
+	Id          uuid.UUID `db:"id"`
+	FirstName   string    `db:"first_name"`
+	LastName    string    `db:"last_name"`
+	DateOfBirth string    `db:"date_of_birth"`
 }
 
 type AuthorInputBody struct {
 	FirstName   string `json:"first_name" doc:"First name"`
 	LastName    string `json:"last_name" doc:"Last name"`
-	DateOfBirth string `json:"date_of_birth" doc:"Date of birth"`
+	DateOfBirth string `json:"date_of_birth,omitempty" doc:"Date of birth"`
 }
 
 type AuthorInput struct {

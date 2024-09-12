@@ -16,15 +16,19 @@ type AuthorHTTPController struct {
 func (h *AuthorHTTPController) GetAll(ctx context.Context, pagin *m.PaginationParams) (*m.AuthorPaginatedOutput, error) {
 	authors, pagination, err := h.AuthorService.GetAll(ctx, *pagin)
 
+	if err != nil {
+		return nil, err
+	}
+
 	var out m.AuthorPaginatedOutput
 	for _, a := range authors {
-		out.Body.Data = append(out.Body.Data, m.AuthorOutputRecord{FirstName: a.FirstName,
+		out.Body.Data = append(out.Body.Data, m.AuthorOutputRecord{Id: a.Id, FirstName: a.FirstName,
 			LastName: a.LastName, DateOfBirth: a.DateOfBirth})
 	}
 
 	out.Body.Pagination = pagination
 
-	return &out, err
+	return &out, nil
 }
 
 func (h *AuthorHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.AuthorOutputRecord, error) {

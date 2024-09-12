@@ -21,6 +21,7 @@ func serve() {
 	app := &a.App{}
 	app.Initialize(cfg)
 
+	goose.SetDialect(string(goose.DialectSQLite3))
 	goose.Up(app.DB.DB, "migrations")
 
 	app.Run(cfg.Port)
