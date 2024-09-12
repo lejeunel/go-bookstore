@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	c "go-bookstore/config"
 	r "go-bookstore/repositories"
+	routes "go-bookstore/routes"
 	"log"
 	"net/http"
 )
@@ -15,12 +17,12 @@ type App struct {
 }
 
 // Initialize app routing
-func (a *App) Initialize(cfg *Config) {
+func (a *App) Initialize(cfg *c.Config) {
 	db := NewSQLiteConnection(cfg.Path)
 	paginator := &r.Paginator{MaxPageSize: cfg.MaxPageSize}
 	a.Router = http.NewServeMux()
 	api := humago.New(a.Router, huma.DefaultConfig("Book Store API", "1.0.0"))
-	AddRoutes(api, db, paginator, "/api/v1")
+	routes.AddRoutes(api, db, paginator, "/api/v1")
 	a.Api = &api
 
 }

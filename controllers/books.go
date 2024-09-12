@@ -3,22 +3,35 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"github.com/danielgtaylor/huma/v2"
 	m "go-bookstore/models"
+	s "go-bookstore/services"
+
+	"github.com/danielgtaylor/huma/v2"
 )
 
-type BookHandler struct {
-	Repo m.BookRepo
+type BookHTTPController struct {
+	BookService s.BookService
 }
 
-func (h *BookHandler) GetAll(ctx context.Context, input *m.PaginationParams) (*m.BookPaginatedOutput, error) {
-	books, pagination, err := h.Repo.GetAll(ctx, *input)
+func buildNestedBookRecord(b m.Book) m.BookOutputRecord {
+	record := m.BookOutputRecord{Title: b.Title,
+		Id: b.Id}
+	for _, a := range b.Authors {
+		author := m.AuthorOutputRecord{Id: a.Id, FirstName: a.FirstName, LastName: a.LastName}
+		record.Authors = append(record.Authors, author)
+	}
+
+	return record
+
+}
+
+func (h *BookHTTPController) GetAll(ctx context.Context, pagin *m.PaginationParams) (*m.BookPaginatedOutput, error) {
+	books, pagination, err := h.BookService.GetAll(ctx, *pagin)
 
 	var out m.BookPaginatedOutput
 	for _, b := range books {
-		new_book := m.BookOutputRecord{Title: b.Title,
-			Author: b.Author, Id: b.Id}
-		out.Body.Data = append(out.Body.Data, new_book)
+		record := buildNestedBookRecord(b)
+		out.Body.Data = append(out.Body.Data, record)
 	}
 
 	out.Body.Pagination = pagination
@@ -26,8 +39,8 @@ func (h *BookHandler) GetAll(ctx context.Context, input *m.PaginationParams) (*m
 	return &out, err
 }
 
-func (h *BookHandler) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.BookOutput, error) {
-	book, err := h.Repo.GetOne(ctx, input.Id)
+func (h *BookHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.BookOutputRecord, error) {
+	book, err := h.BookService.GetOne(ctx, input.Id)
 
 	if err != nil {
 		return nil, huma.Error404NotFound(fmt.Sprintf("book with id %v not found",
@@ -35,17 +48,25 @@ func (h *BookHandler) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.
 
 	}
 
-	out := &m.BookOutput{Body: m.BookOutputRecord{Id: book.Id, Title: book.Title,
-		Author: book.Author}}
+	out := buildNestedBookRecord(*book)
 
-	return out, nil
+	return &out, nil
 }
 
-func (h *BookHandler) Create(ctx context.Context, in *m.BookInput) (*m.BookOutput, error) {
-	book, err := h.Repo.Create(ctx, &m.Book{Title: in.Body.Title,
-		Author: in.Body.Author})
+func (h *BookHTTPController) Create(ctx context.Context, in *m.BookInput) (*m.BookOutputRecord, error) {
+	book, err := h.BookService.Create(ctx, &m.Book{Title: in.Body.Title})
 
-	out := &m.BookOutput{Body: m.BookOutputRecord{Id: book.Id, Title: book.Title,
-		Author: book.Author}}
-	return out, err
+	if err != nil {
+		return nil, err
+	}
+
+	out := m.BookOutputRecord{Id: book.Id, Title: book.Title}
+	return &out, err
+}
+
+func (h *BookHTTPController) AssignAuthorToBook(ctx context.Context, in *m.AuthorBookAssign) (*m.BookOutputRecord, error) {
+	book, err := h.BookService.AssignAuthorToBook(ctx, in.BookID, in.AuthorID)
+
+	out := buildNestedBookRecord(*book)
+	return &out, err
 }

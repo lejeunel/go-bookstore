@@ -2,36 +2,51 @@ package main
 
 import (
 	"github.com/danielgtaylor/huma/v2/humatest"
-	c "go-bookstore/config"
+	a "go-bookstore/app"
 	r "go-bookstore/repositories"
+	routes "go-bookstore/routes"
 	"testing"
 )
 
 func NewTestService(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
-	db := c.NewSQLiteConnection(":memory:")
+	db := a.NewSQLiteConnection(":memory:")
 	paginator := &r.Paginator{MaxPageSize: 2}
-	c.AddRoutes(api, db, paginator, "")
+	routes.AddRoutes(api, db, paginator, "")
 
 	return api
-}
-
-func MakeTestBook() map[string]string {
-	test_book := make(map[string]string)
-	test_book["title"] = "the title"
-	test_book["author"] = "the author"
-	return test_book
-
 }
 
 func TestAddBook(t *testing.T) {
 
 	api := NewTestService(t)
-	test_book := MakeTestBook()
+	test_book := map[string]any{"title": "the title"}
 
 	resp := api.Post("/books", test_book)
 
 	if resp.Code != 201 {
+		t.Fatalf("Unexpected status code: %d", resp.Code)
+	}
+
+	resp = api.Post("/authors", map[string]any{
+		"first_name":    "john",
+		"last_name":     "doe",
+		"date_of_birth": "",
+	})
+
+}
+
+func TestGetAllBooks(t *testing.T) {
+
+	api := NewTestService(t)
+	first := map[string]any{"title": "the first title"}
+	second := map[string]any{"title": "the second title"}
+
+	api.Post("/books", first)
+	api.Post("/books", second)
+	resp := api.Get("/books")
+
+	if resp.Code != 200 {
 		t.Fatalf("Unexpected status code: %d", resp.Code)
 	}
 
