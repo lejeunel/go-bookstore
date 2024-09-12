@@ -1,9 +1,11 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	goose "github.com/pressly/goose/v3"
 	a "go-bookstore/app"
 	c "go-bookstore/config"
+
+	"github.com/spf13/cobra"
 )
 
 var serveCmd = &cobra.Command{
@@ -18,6 +20,8 @@ func serve() {
 	cfg := c.NewConfig()
 	app := &a.App{}
 	app.Initialize(cfg)
+
+	goose.Up(app.DB.DB, "migrations")
 
 	app.Run(cfg.Port)
 }

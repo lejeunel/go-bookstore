@@ -25,7 +25,7 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		Summary:     "Get a book by ID",
 	}, bookController.GetOne)
 	huma.Register(api, huma.Operation{
-		OperationID: "get-all-book",
+		OperationID: "get-all-books",
 		Method:      http.MethodGet,
 		Path:        prefix + "/books",
 		Summary:     "Get all books",
@@ -54,4 +54,10 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		Summary:       "Add a new author",
 		DefaultStatus: http.StatusCreated,
 	}, authorController.Create)
+	huma.Register(api, huma.Operation{
+		OperationID: "get-all-authors",
+		Method:      http.MethodGet,
+		Path:        prefix + "/authors",
+		Summary:     "Get all authors",
+	}, authorController.GetAll)
 }
