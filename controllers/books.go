@@ -48,6 +48,10 @@ func (h *BookHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInpu
 
 	}
 
+	if err != nil {
+		return nil, err
+	}
+
 	out := m.BookOutput{Body: buildNestedBookRecord(*book)}
 
 	return &out, nil
@@ -64,9 +68,13 @@ func (h *BookHTTPController) Create(ctx context.Context, in *m.BookInput) (*m.Bo
 	return &out, err
 }
 
-func (h *BookHTTPController) AssignAuthorToBook(ctx context.Context, in *m.AuthorBookAssign) (*m.BookOutputRecord, error) {
+func (h *BookHTTPController) AssignAuthorToBook(ctx context.Context, in *m.AuthorBookAssignInput) (*m.BookOutput, error) {
 	book, err := h.BookService.AssignAuthorToBook(ctx, in.BookID, in.AuthorID)
 
-	out := buildNestedBookRecord(*book)
+	if err != nil {
+		return nil, err
+	}
+
+	out := m.BookOutput{Body: buildNestedBookRecord(*book)}
 	return &out, err
 }

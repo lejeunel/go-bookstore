@@ -18,9 +18,9 @@ type BookInput struct {
 	Body BookInputBody
 }
 
-type AuthorBookAssign struct {
-	BookID   string
-	AuthorID string
+type AuthorBookAssignInput struct {
+	BookID   string `path:"book_id"`
+	AuthorID string `path:"author_id"`
 }
 
 type BookOutputRecord struct {

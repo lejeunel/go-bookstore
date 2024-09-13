@@ -31,7 +31,7 @@ func (h *AuthorHTTPController) GetAll(ctx context.Context, pagin *m.PaginationPa
 	return &out, nil
 }
 
-func (h *AuthorHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInput) (*m.AuthorOutput, error) {
+func (h *AuthorHTTPController) GetOne(ctx context.Context, input *m.GetOneAuthorInput) (*m.AuthorOutput, error) {
 	a, err := h.AuthorService.GetOne(ctx, input.Id)
 
 	if err != nil {

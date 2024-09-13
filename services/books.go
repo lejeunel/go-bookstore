@@ -14,25 +14,34 @@ type BookService struct {
 
 func (s *BookService) Create(ctx context.Context, b *m.Book) (*m.Book, error) {
 
-	b, err := s.BookRepo.Create(ctx, b)
-
-	return b, err
+	return s.BookRepo.Create(ctx, b)
 }
 
 func (s *BookService) GetOne(ctx context.Context, id string) (*m.Book, error) {
 	book, err := s.BookRepo.GetOne(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	authors, err := s.AuthorRepo.GetAuthorsOfBook(ctx, book)
 
-	return book, err
+	if err != nil {
+		return nil, err
+	}
+
+	book.Authors = authors
+
+	return book, nil
+
 }
 
 func (s *BookService) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Book, *m.Pagination, error) {
-	books, pagination, error := s.BookRepo.GetAll(ctx, in)
+	// TODO append authors here
+	return s.BookRepo.GetAll(ctx, in)
 
-	return books, pagination, error
 }
 
 func (s *BookService) AssignAuthorToBook(ctx context.Context, book_id string, author_id string) (*m.Book, error) {
-	book, err_book := s.BookRepo.GetOne(ctx, book_id)
+	book, err_book := s.GetOne(ctx, book_id)
 	author, err_author := s.AuthorRepo.GetOne(ctx, author_id)
 
 	if (err_book != nil) || (err_author != nil) {
@@ -43,6 +52,8 @@ func (s *BookService) AssignAuthorToBook(ctx context.Context, book_id string, au
 	if err != nil {
 		return nil, err
 	}
+
+	book.Authors = append(book.Authors, *author)
 
 	return book, nil
 }

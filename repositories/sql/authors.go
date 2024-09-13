@@ -58,3 +58,26 @@ func (r *SQLAuthorRepo) GetAll(ctx context.Context, in m.PaginationParams) ([]m.
 
 	return authors, pagination, errors.Join(err_select, err_count)
 }
+
+func (r *SQLAuthorRepo) GetAuthorsOfBook(ctx context.Context, b *m.Book) ([]m.Author, error) {
+	var author_ids []string
+	var authors []m.Author
+
+	err := r.Db.Select(&author_ids, "SELECT author_id FROM book_author_assoc WHERE book_id = ?", b.Id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, id := range author_ids {
+		a, err := r.GetOne(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		authors = append(authors, *a)
+
+	}
+
+	return authors, nil
+
+}

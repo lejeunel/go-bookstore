@@ -12,10 +12,13 @@ import (
 )
 
 func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
-	bookService := s.BookService{BookRepo: sql.NewSQLBookRepo(db, p)}
-	bookController := &c.BookHTTPController{BookService: bookService}
+	bookRepo := sql.NewSQLBookRepo(db, p)
+	authorRepo := sql.NewSQLAuthorRepo(db, p)
 
+	bookService := s.BookService{BookRepo: bookRepo, AuthorRepo: authorRepo}
 	authorService := s.AuthorService{AuthorRepo: sql.NewSQLAuthorRepo(db, p)}
+
+	bookController := &c.BookHTTPController{BookService: bookService}
 	authorController := &c.AuthorHTTPController{AuthorService: authorService}
 
 	huma.Register(api, huma.Operation{

@@ -29,19 +29,40 @@ func NewTestService(t *testing.T) humatest.TestAPI {
 func TestAddBook(t *testing.T) {
 
 	api := NewTestService(t)
-	test_book := map[string]any{"title": "the title"}
 
-	resp := api.Post("/books", test_book)
+	var created_book *m.BookOutputRecord
+	resp := api.Post("/books", map[string]any{"title": "the title"})
+	json.NewDecoder(resp.Body).Decode(&created_book)
 
 	if resp.Code != 201 {
 		t.Fatalf("Unexpected status code: %d", resp.Code)
 	}
 
+	var first_author, second_author *m.AuthorOutputRecord
 	resp = api.Post("/authors", map[string]any{
 		"first_name":    "john",
 		"last_name":     "doe",
 		"date_of_birth": "",
 	})
+	json.NewDecoder(resp.Body).Decode(&first_author)
+
+	resp = api.Post("/authors", map[string]any{
+		"first_name":    "jane",
+		"last_name":     "smith",
+		"date_of_birth": "",
+	})
+	json.NewDecoder(resp.Body).Decode(&second_author)
+
+	resp = api.Post("/books/" + created_book.Id.String() + "/authors/" + first_author.Id.String())
+	resp = api.Post("/books/" + created_book.Id.String() + "/authors/" + second_author.Id.String())
+
+	var final_book *m.BookOutputRecord
+	json.NewDecoder(resp.Body).Decode(&final_book)
+
+	if len(final_book.Authors) != 2 {
+		t.Fatalf("Expected to retrieve 2 associated authors, got %v", final_book.Authors)
+
+	}
 
 }
 func TestGetOneBook(t *testing.T) {

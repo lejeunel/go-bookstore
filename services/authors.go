@@ -12,15 +12,13 @@ type AuthorService struct {
 
 func (s *AuthorService) Create(ctx context.Context, a *m.Author) (*m.Author, error) {
 
-	a, err := s.AuthorRepo.Create(ctx, a)
+	return s.AuthorRepo.Create(ctx, a)
 
-	return a, err
 }
 
 func (s *AuthorService) GetOne(ctx context.Context, id string) (*m.Author, error) {
-	a, err := s.AuthorRepo.GetOne(ctx, id)
+	return s.AuthorRepo.GetOne(ctx, id)
 
-	return a, err
 }
 
 func (s *AuthorService) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Author, *m.Pagination, error) {
