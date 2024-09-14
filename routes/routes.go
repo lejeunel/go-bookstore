@@ -25,12 +25,14 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		OperationID: "get-book",
 		Method:      http.MethodGet,
 		Path:        prefix + "/books/{id}",
+		Tags:        []string{"Books"},
 		Summary:     "Get a book by ID",
 	}, bookController.GetOne)
 	huma.Register(api, huma.Operation{
 		OperationID: "get-all-books",
 		Method:      http.MethodGet,
 		Path:        prefix + "/books",
+		Tags:        []string{"Books"},
 		Summary:     "Get all books",
 	}, bookController.GetAll)
 
@@ -38,6 +40,7 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		OperationID:   "post-book",
 		Method:        http.MethodPost,
 		Path:          prefix + "/books",
+		Tags:          []string{"Books"},
 		Summary:       "Add a new book",
 		DefaultStatus: http.StatusCreated,
 	}, bookController.Create)
@@ -47,6 +50,7 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		Method:        http.MethodPost,
 		Path:          prefix + "/books/{book_id}/authors/{author_id}",
 		Summary:       "Assign an author to book",
+		Tags:          []string{"Books"},
 		DefaultStatus: http.StatusCreated,
 	}, bookController.AssignAuthorToBook)
 
@@ -55,12 +59,14 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		Method:        http.MethodPost,
 		Path:          prefix + "/authors",
 		Summary:       "Add a new author",
+		Tags:          []string{"Authors"},
 		DefaultStatus: http.StatusCreated,
 	}, authorController.Create)
 	huma.Register(api, huma.Operation{
 		OperationID: "get-all-authors",
 		Method:      http.MethodGet,
 		Path:        prefix + "/authors",
+		Tags:        []string{"Authors"},
 		Summary:     "Get all authors",
 	}, authorController.GetAll)
 
@@ -68,6 +74,7 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		OperationID: "get-author",
 		Method:      http.MethodGet,
 		Path:        prefix + "/authors/{id}",
+		Tags:        []string{"Authors"},
 		Summary:     "Get an author by id",
 	}, authorController.GetOne)
 }
