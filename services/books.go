@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/vcraescu/go-paginator/v2"
 	m "go-bookstore/models"
 	r "go-bookstore/repositories"
 )
@@ -34,9 +35,16 @@ func (s *BookService) GetOne(ctx context.Context, id string) (*m.Book, error) {
 
 }
 
-func (s *BookService) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Book, *m.Pagination, error) {
-	// TODO append authors here
-	return s.BookRepo.GetAll(ctx, in)
+func (s *BookService) GetMany(ctx context.Context, in m.PaginationParams) ([]m.Book, *m.Pagination, error) {
+	p := paginator.New(s.BookRepo, in.PageSize)
+	p.SetPage(in.Page)
+	var books []m.Book
+
+	if err := p.Results(&books); err != nil {
+		return nil, nil, err
+	}
+
+	return books, nil, nil
 
 }
 
