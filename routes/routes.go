@@ -25,23 +25,23 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		OperationID: "get-book",
 		Method:      http.MethodGet,
 		Path:        prefix + "/books/{id}",
+		Tags:        []string{"Books"},
 		Summary:     "Get a book by ID",
-		Tags:        []string{"Book"},
 	}, bookController.GetOne)
 	huma.Register(api, huma.Operation{
 		OperationID: "get-all-books",
 		Method:      http.MethodGet,
 		Path:        prefix + "/books",
+		Tags:        []string{"Books"},
 		Summary:     "Get all books",
-		Tags:        []string{"Book"},
 	}, bookController.GetAll)
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "post-book",
 		Method:        http.MethodPost,
 		Path:          prefix + "/books",
+		Tags:          []string{"Books"},
 		Summary:       "Add a new book",
-		Tags:          []string{"Book"},
 		DefaultStatus: http.StatusCreated,
 	}, bookController.Create)
 
@@ -50,7 +50,7 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		Method:        http.MethodPost,
 		Path:          prefix + "/books/{book_id}/authors/{author_id}",
 		Summary:       "Assign an author to book",
-		Tags:          []string{"Book"},
+		Tags:          []string{"Books"},
 		DefaultStatus: http.StatusCreated,
 	}, bookController.AssignAuthorToBook)
 
@@ -59,22 +59,22 @@ func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
 		Method:        http.MethodPost,
 		Path:          prefix + "/authors",
 		Summary:       "Add a new author",
-		Tags:          []string{"Author"},
+		Tags:          []string{"Authors"},
 		DefaultStatus: http.StatusCreated,
 	}, authorController.Create)
 	huma.Register(api, huma.Operation{
 		OperationID: "get-all-authors",
 		Method:      http.MethodGet,
 		Path:        prefix + "/authors",
+		Tags:        []string{"Authors"},
 		Summary:     "Get all authors",
-		Tags:        []string{"Author"},
 	}, authorController.GetAll)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-author",
 		Method:      http.MethodGet,
 		Path:        prefix + "/authors/{id}",
-		Tags:        []string{"Author"},
+		Tags:        []string{"Authors"},
 		Summary:     "Get an author by id",
 	}, authorController.GetOne)
 }
