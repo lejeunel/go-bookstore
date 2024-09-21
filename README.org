@@ -2,3 +2,8 @@
 
 * Installation
 * Usage
+* Testing
+
+#+begin_src sh
+go test ./tests -v
+#+end_src
