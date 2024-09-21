@@ -13,8 +13,8 @@ type AuthorHTTPController struct {
 	AuthorService s.AuthorService
 }
 
-func (h *AuthorHTTPController) GetAll(ctx context.Context, pagin *m.PaginationParams) (*m.AuthorPaginatedOutput, error) {
-	authors, pagination, err := h.AuthorService.GetAll(ctx, *pagin)
+func (h *AuthorHTTPController) GetMany(ctx context.Context, pagin *m.PaginationParams) (*m.AuthorPaginatedOutput, error) {
+	authors, pagination, err := h.AuthorService.GetMany(ctx, *pagin)
 
 	if err != nil {
 		return nil, err

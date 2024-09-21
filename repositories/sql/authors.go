@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"errors"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -48,15 +47,41 @@ func (r *SQLAuthorRepo) GetOne(ctx context.Context, id string) (*m.Author, error
 	return &a, nil
 }
 
-func (r *SQLAuthorRepo) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Author, *m.Pagination, error) {
-	limit, offset := r.Paginator.PaginationToLimitAndOffset(in)
-	authors := []m.Author{}
-	err_select := r.Db.Select(&authors, "SELECT id,first_name,last_name,date_of_birth FROM authors LIMIT $1 OFFSET $2", limit, offset)
-	var count int
-	err_count := r.Db.Get(&count, "SELECT count(*) FROM authors")
-	pagination := r.Paginator.MakePaginationMetaData(count, limit, in.Page)
+func (r *SQLAuthorRepo) Nums() (int64, error) {
+	var count int64
+	err := r.Db.QueryRow("SELECT COUNT(*) FROM authors").Scan(&count)
 
-	return authors, pagination, errors.Join(err_select, err_count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+
+}
+
+func (r *SQLAuthorRepo) Slice(offset, length int, data interface{}) error {
+
+	rows, err := r.Db.Queryx("SELECT id,first_name,last_name,date_of_birth FROM authors LIMIT $1 OFFSET $2", length, offset)
+
+	var authors []*m.Author
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var a m.Author
+		err := rows.StructScan(&a)
+
+		if err != nil {
+			return err
+		}
+
+		authors = append(authors, &a)
+	}
+
+	data = authors
+
+	return nil
 }
 
 func (r *SQLAuthorRepo) GetAuthorsOfBook(ctx context.Context, b *m.Book) ([]m.Author, error) {

@@ -48,23 +48,42 @@ func (r *SQLBookRepo) GetOne(ctx context.Context, id string) (*m.Book, error) {
 	return &b, nil
 }
 
-func (r *SQLBookRepo) GetAll(ctx context.Context, in m.PaginationParams) ([]m.Book, *m.Pagination, error) {
-	limit, offset := r.Paginator.PaginationToLimitAndOffset(in)
-	books := []m.Book{}
-	rows, err := r.Db.Queryx("SELECT id, title FROM books LIMIT $1 OFFSET $2", limit, offset)
+func (r *SQLBookRepo) Nums() (int64, error) {
+	var count int64
+	err := r.Db.QueryRow("SELECT COUNT(*) FROM books ").Scan(&count)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+
+}
+
+func (r *SQLBookRepo) Slice(offset, length int, data interface{}) error {
+
+	rows, err := r.Db.Queryx("SELECT id, title FROM books LIMIT $1 OFFSET $2", length, offset)
+
+	if err != nil {
+		return err
+	}
+
+	var books []*m.Book
+
 	for rows.Next() {
 		var b m.Book
 		err := rows.StructScan(&b)
 
 		if err != nil {
-			return nil, nil, err
+			return err
 		}
 
-		books = append(books, b)
+		books = append(books, &b)
 	}
-	pagination := r.Paginator.MakePaginationMetaData(len(books), limit, in.Page)
 
-	return books, pagination, err
+	data = books
+
+	return nil
 }
 
 func (r *SQLBookRepo) AssignAuthor(ctx context.Context, b *m.Book, a *m.Author) (*m.Book, error) {
