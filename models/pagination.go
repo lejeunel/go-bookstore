@@ -8,10 +8,11 @@ type PaginationParams struct {
 }
 
 type Pagination struct {
-	Next        int `json:"next,omitempty"`
-	Previous    int `json:"prev,omitempty"`
-	CurrentPage int `json:"current_page"`
-	TotalPage   int `json:"total_pages"`
+	Next         int   `json:"next,omitempty"`
+	Previous     int   `json:"prev,omitempty"`
+	CurrentPage  int   `json:"current_page"`
+	TotalPages   int   `json:"total_pages"`
+	TotalRecords int64 `json:"total_records"`
 }
 
 func NewPagination(p paginator.Paginator) Pagination {
@@ -31,7 +32,8 @@ func NewPagination(p paginator.Paginator) Pagination {
 	}
 
 	pagination.CurrentPage, _ = p.Page()
-	pagination.TotalPage, _ = p.PageNums()
+	pagination.TotalPages, _ = p.PageNums()
+	pagination.TotalRecords, _ = p.Nums()
 
 	return pagination
 

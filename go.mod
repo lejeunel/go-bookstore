@@ -8,7 +8,10 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/pivaldi/db-migration v0.0.0-20231130143557-d084c58bba2a
+	github.com/pressly/goose/v3 v3.22.0
 	github.com/spf13/cobra v1.8.0
+	github.com/vcraescu/go-paginator/v2 v2.0.0
 )
 
 require (
@@ -40,10 +43,7 @@ require (
 	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
-	github.com/pivaldi/db-migration v0.0.0-20231130143557-d084c58bba2a // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pressly/goose v2.7.0+incompatible // indirect
-	github.com/pressly/goose/v3 v3.22.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/sethvargo/go-retry v0.3.0 // indirect
@@ -54,7 +54,6 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.16.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
-	github.com/vcraescu/go-paginator/v2 v2.0.0 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	go.opentelemetry.io/otel v1.26.0 // indirect
 	go.opentelemetry.io/otel/trace v1.26.0 // indirect

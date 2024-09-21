@@ -39,15 +39,14 @@ func (s *BookService) GetOne(ctx context.Context, id string) (*m.Book, error) {
 }
 
 func (s *BookService) GetMany(ctx context.Context, in m.PaginationParams) ([]m.Book, *m.Pagination, error) {
-	p := paginator.New(s.BookRepo, s.MaxPageSize)
+	if in.PageSize > s.MaxPageSize {
+		return nil, nil, errors.New(fmt.Sprintf("Provided page size %d must be <= to %d", in.PageSize, s.MaxPageSize))
+	}
+	p := paginator.New(s.BookRepo, in.PageSize)
 	if in.Page == 0 {
 		p.SetPage(1)
 	} else {
 		p.SetPage(in.Page)
-	}
-
-	if in.PageSize > s.MaxPageSize {
-		return nil, nil, errors.New(fmt.Sprintf("Provided page size %d must be <= to %d", in.PageSize, s.MaxPageSize))
 	}
 
 	var books []m.Book

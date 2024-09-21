@@ -7,3 +7,6 @@
 #+begin_src sh
 go test ./tests -v
 #+end_src
+
+* TODO
+- Clean-up pagination logic in services
