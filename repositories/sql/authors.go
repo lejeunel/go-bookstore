@@ -61,10 +61,11 @@ func (r *SQLAuthorRepo) Slice(offset, length int, data interface{}) error {
 
 	rows, err := r.Db.Queryx("SELECT id,first_name,last_name,date_of_birth FROM authors LIMIT $1 OFFSET $2", length, offset)
 
-	var authors []*m.Author
 	if err != nil {
 		return err
 	}
+
+	s := data.(*[]m.Author)
 
 	for rows.Next() {
 		var a m.Author
@@ -74,10 +75,8 @@ func (r *SQLAuthorRepo) Slice(offset, length int, data interface{}) error {
 			return err
 		}
 
-		authors = append(authors, &a)
+		*s = append(*s, a)
 	}
-
-	data = authors
 
 	return nil
 }

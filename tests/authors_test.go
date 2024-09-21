@@ -2,6 +2,7 @@ package tests
 
 import (
 	"encoding/json"
+	"fmt"
 	m "go-bookstore/models"
 	"testing"
 )
@@ -26,18 +27,35 @@ func TestGetOneAuthor(t *testing.T) {
 
 }
 
-func TestGetAllAuthors(t *testing.T) {
-
+func TestGetAuthorPaginated(t *testing.T) {
 	api := NewTestService(t)
-	first := map[string]any{"first_name": "john", "last_name": "doe"}
-	second := map[string]any{"first_name": "willy", "last_name": "wonka"}
+	nAuthors := 20
 
-	api.Post("/authors", first)
-	api.Post("/authors", second)
-	resp := api.Get("/authors")
+	for i := 0; i < nAuthors; i++ {
+		first_name := fmt.Sprintf("first_name %d", i)
+		last_name := fmt.Sprintf("last_name %d", i)
+		author := map[string]any{"first_name": first_name,
+			"last_name": last_name}
+		api.Post("/authors", author)
+	}
 
-	if resp.Code != 200 {
-		t.Fatalf("Unexpected status code: %d", resp.Code)
+	var retrievedNAuthors int
+	var nextPage int = 1
+	for {
+		var results *m.AuthorPaginatedOutputBody
+		url := fmt.Sprintf("/authors?page=%d", nextPage)
+		resp := api.Get(url)
+		json.NewDecoder(resp.Body).Decode(&results)
+		retrievedNAuthors += len(results.Data)
+		nextPage = results.Pagination.Next
+
+		if nextPage == 0 {
+			break
+		}
+	}
+	if retrievedNAuthors != nAuthors {
+		t.Fatalf("Unexpected retrieved num of authors. Created %v, retrieved %v", nAuthors, retrievedNAuthors)
+
 	}
 
 }
