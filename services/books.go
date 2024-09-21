@@ -44,7 +44,8 @@ func (s *BookService) GetMany(ctx context.Context, in m.PaginationParams) ([]m.B
 		return nil, nil, err
 	}
 
-	return books, nil, nil
+	pagination := m.NewPagination(p)
+	return books, &pagination, nil
 
 }
 

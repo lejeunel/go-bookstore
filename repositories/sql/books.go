@@ -8,18 +8,16 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	m "go-bookstore/models"
-	r "go-bookstore/repositories"
 	"time"
 )
 
 type SQLBookRepo struct {
-	Db        *sqlx.DB
-	Paginator *r.Paginator
+	Db *sqlx.DB
 }
 
-func NewSQLBookRepo(db *sqlx.DB, paginator *r.Paginator) *SQLBookRepo {
+func NewSQLBookRepo(db *sqlx.DB) *SQLBookRepo {
 
-	return &SQLBookRepo{Db: db, Paginator: paginator}
+	return &SQLBookRepo{Db: db}
 
 }
 
@@ -92,7 +90,7 @@ func (r *SQLBookRepo) AssignAuthor(ctx context.Context, b *m.Book, a *m.Author) 
 		b.Id, a.Id).Scan(&nAssocs)
 
 	if nAssocs > 0 {
-		return b, errors.New(fmt.Sprintf("Book %v by %v is already assigned to author %v %v",
+		return b, errors.New(fmt.Sprintf("Book %v is already assigned to author %v %v",
 			b.Title, a.FirstName, a.LastName))
 	}
 

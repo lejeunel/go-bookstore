@@ -28,6 +28,8 @@ func (s *AuthorService) GetMany(ctx context.Context, in m.PaginationParams) ([]m
 		return nil, nil, err
 	}
 
-	return authors, nil, nil
+	pagination := m.NewPagination(p)
+
+	return authors, &pagination, nil
 
 }

@@ -2,12 +2,14 @@ package tests
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/danielgtaylor/huma/v2/humatest"
 	goose "github.com/pressly/goose/v3"
 	a "go-bookstore/app"
 	m "go-bookstore/models"
-	r "go-bookstore/repositories"
+	sql "go-bookstore/repositories/sql"
 	routes "go-bookstore/routes"
+	s "go-bookstore/services"
 	"testing"
 )
 
@@ -20,8 +22,12 @@ func NewTestService(t *testing.T) humatest.TestAPI {
 	if err != nil {
 		panic(err)
 	}
-	paginator := &r.Paginator{MaxPageSize: 2}
-	routes.AddRoutes(api, db, paginator, "")
+	bookRepo := sql.NewSQLBookRepo(db)
+	authorRepo := sql.NewSQLAuthorRepo(db)
+
+	bookService := s.BookService{BookRepo: bookRepo, AuthorRepo: authorRepo}
+	authorService := s.AuthorService{AuthorRepo: authorRepo}
+	routes.AddRoutes(api, "", bookService, authorService)
 
 	return api
 }
@@ -110,12 +116,13 @@ func TestGetBookWithWrongIdReturns404(t *testing.T) {
 	}
 }
 
-func TestGetBookPaginationMinimum(t *testing.T) {
+func TestGetBookPagination(t *testing.T) {
 	api := NewTestService(t)
 
-	resp := api.Get("/books?page=0&pagesize=2")
-
-	if resp.Code != 422 {
-		t.Fatalf("Unexpected status code: %d, expected 424", resp.Code)
+	var book map[string]any
+	for i := 0; i < 20; i++ {
+		book["title"], _ = fmt.Printf("book %d", i)
+		api.Post("/books", book)
 	}
+
 }

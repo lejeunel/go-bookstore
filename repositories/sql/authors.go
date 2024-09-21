@@ -6,18 +6,16 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	m "go-bookstore/models"
-	r "go-bookstore/repositories"
 	"time"
 )
 
 type SQLAuthorRepo struct {
-	Db        *sqlx.DB
-	Paginator *r.Paginator
+	Db *sqlx.DB
 }
 
-func NewSQLAuthorRepo(db *sqlx.DB, paginator *r.Paginator) *SQLAuthorRepo {
+func NewSQLAuthorRepo(db *sqlx.DB) *SQLAuthorRepo {
 
-	return &SQLAuthorRepo{Db: db, Paginator: paginator}
+	return &SQLAuthorRepo{Db: db}
 
 }
 

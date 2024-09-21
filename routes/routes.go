@@ -1,22 +1,15 @@
 package config
 
 import (
-	"github.com/jmoiron/sqlx"
 	c "go-bookstore/controllers"
-	r "go-bookstore/repositories"
-	sql "go-bookstore/repositories/sql"
 	s "go-bookstore/services"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
 )
 
-func AddRoutes(api huma.API, db *sqlx.DB, p *r.Paginator, prefix string) {
-	bookRepo := sql.NewSQLBookRepo(db, p)
-	authorRepo := sql.NewSQLAuthorRepo(db, p)
-
-	bookService := s.BookService{BookRepo: bookRepo, AuthorRepo: authorRepo}
-	authorService := s.AuthorService{AuthorRepo: sql.NewSQLAuthorRepo(db, p)}
+func AddRoutes(api huma.API, prefix string, bookService s.BookService,
+	authorService s.AuthorService) {
 
 	bookController := &c.BookHTTPController{BookService: bookService}
 	authorController := &c.AuthorHTTPController{AuthorService: authorService}
