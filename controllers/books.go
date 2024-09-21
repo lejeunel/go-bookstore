@@ -10,7 +10,7 @@ import (
 )
 
 type BookHTTPController struct {
-	BookService s.BookService
+	BookService *s.BookService
 }
 
 func buildNestedBookRecord(b m.Book) m.BookOutputRecord {
@@ -46,10 +46,6 @@ func (h *BookHTTPController) GetOne(ctx context.Context, input *m.GetOneBookInpu
 		return nil, huma.Error404NotFound(fmt.Sprintf("book with id %v not found",
 			input.Id))
 
-	}
-
-	if err != nil {
-		return nil, err
 	}
 
 	out := m.BookOutput{Body: buildNestedBookRecord(*book)}

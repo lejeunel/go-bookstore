@@ -10,7 +10,7 @@ import (
 )
 
 type AuthorHTTPController struct {
-	AuthorService s.AuthorService
+	AuthorService *s.AuthorService
 }
 
 func (h *AuthorHTTPController) GetMany(ctx context.Context, pagin *m.PaginationParams) (*m.AuthorPaginatedOutput, error) {

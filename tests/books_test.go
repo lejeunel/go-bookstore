@@ -25,8 +25,11 @@ func NewTestService(t *testing.T) humatest.TestAPI {
 	bookRepo := sql.NewSQLBookRepo(db)
 	authorRepo := sql.NewSQLAuthorRepo(db)
 
-	bookService := s.BookService{BookRepo: bookRepo, AuthorRepo: authorRepo}
-	authorService := s.AuthorService{AuthorRepo: authorRepo}
+	bookService := s.BookService{BookRepo: bookRepo, AuthorRepo: authorRepo, MaxPageSize: 2,
+		DefaultPageSize: 2}
+
+	authorService := s.AuthorService{AuthorRepo: authorRepo, MaxPageSize: 2,
+		DefaultPageSize: 2}
 	routes.AddRoutes(api, "", bookService, authorService)
 
 	return api
@@ -91,22 +94,6 @@ func TestGetOneBook(t *testing.T) {
 
 }
 
-func TestGetAllBooks(t *testing.T) {
-
-	api := NewTestService(t)
-	first := map[string]any{"title": "the first title"}
-	second := map[string]any{"title": "the second title"}
-
-	api.Post("/books", first)
-	api.Post("/books", second)
-	resp := api.Get("/books")
-
-	if resp.Code != 200 {
-		t.Fatalf("Unexpected status code: %d", resp.Code)
-	}
-
-}
-
 func TestGetBookWithWrongIdReturns404(t *testing.T) {
 	api := NewTestService(t)
 
@@ -116,13 +103,33 @@ func TestGetBookWithWrongIdReturns404(t *testing.T) {
 	}
 }
 
-func TestGetBookPagination(t *testing.T) {
+func TestGetBookPaginated(t *testing.T) {
 	api := NewTestService(t)
+	nBooks := 20
 
-	var book map[string]any
-	for i := 0; i < 20; i++ {
-		book["title"], _ = fmt.Printf("book %d", i)
+	for i := 0; i < nBooks; i++ {
+		title := fmt.Sprintf("book %d", i)
+		book := map[string]any{"title": title}
 		api.Post("/books", book)
+	}
+
+	var retrievedNBooks int
+	var nextPage int = 1
+	for {
+		var results *m.BookPaginatedOutputBody
+		url := fmt.Sprintf("/books?page=%d", nextPage)
+		resp := api.Get(url)
+		json.NewDecoder(resp.Body).Decode(&results)
+		retrievedNBooks += len(results.Data)
+		nextPage = results.Pagination.Next
+
+		if nextPage == 0 {
+			break
+		}
+	}
+	if retrievedNBooks != nBooks {
+		t.Fatalf("Unexpected retrieved num of books. Created %v, retrieved %v", nBooks, retrievedNBooks)
+
 	}
 
 }

@@ -8,8 +8,8 @@ type PaginationParams struct {
 }
 
 type Pagination struct {
-	Next        int `json:"next"`
-	Previous    int `json:"prev"`
+	Next        int `json:"next,omitempty"`
+	Previous    int `json:"prev,omitempty"`
 	CurrentPage int `json:"current_page"`
 	TotalPage   int `json:"total_pages"`
 }

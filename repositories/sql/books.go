@@ -66,7 +66,7 @@ func (r *SQLBookRepo) Slice(offset, length int, data interface{}) error {
 		return err
 	}
 
-	var books []*m.Book
+	s := data.(*[]m.Book)
 
 	for rows.Next() {
 		var b m.Book
@@ -76,10 +76,8 @@ func (r *SQLBookRepo) Slice(offset, length int, data interface{}) error {
 			return err
 		}
 
-		books = append(books, &b)
+		*s = append(*s, b)
 	}
-
-	data = books
 
 	return nil
 }

@@ -11,8 +11,8 @@ import (
 func AddRoutes(api huma.API, prefix string, bookService s.BookService,
 	authorService s.AuthorService) {
 
-	bookController := &c.BookHTTPController{BookService: bookService}
-	authorController := &c.AuthorHTTPController{AuthorService: authorService}
+	bookController := &c.BookHTTPController{BookService: &bookService}
+	authorController := &c.AuthorHTTPController{AuthorService: &authorService}
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-book",

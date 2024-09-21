@@ -8,7 +8,9 @@ import (
 )
 
 type AuthorService struct {
-	AuthorRepo r.AuthorRepo
+	AuthorRepo      r.AuthorRepo
+	MaxPageSize     int
+	DefaultPageSize int
 }
 
 func (s *AuthorService) Create(ctx context.Context, a *m.Author) (*m.Author, error) {
