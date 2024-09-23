@@ -33,7 +33,7 @@ type AuthorOutput struct {
 }
 
 type AuthorPaginatedOutputBody struct {
-	Pagination *Pagination          `json:"pagination"`
+	Pagination *PaginationMeta      `json:"pagination"`
 	Data       []AuthorOutputRecord `json:"data"`
 }
 

@@ -34,7 +34,7 @@ type BookOutput struct {
 }
 
 type BookPaginatedOutputBody struct {
-	Pagination *Pagination        `json:"pagination"`
+	Pagination *PaginationMeta    `json:"pagination"`
 	Data       []BookOutputRecord `json:"data"`
 }
 type BookPaginatedOutput struct {

@@ -7,7 +7,7 @@ type PaginationParams struct {
 	PageSize int `query:"pagesize"`
 }
 
-type Pagination struct {
+type PaginationMeta struct {
 	Next         int   `json:"next,omitempty"`
 	Previous     int   `json:"prev,omitempty"`
 	CurrentPage  int   `json:"current_page"`
@@ -15,9 +15,9 @@ type Pagination struct {
 	TotalRecords int64 `json:"total_records"`
 }
 
-func NewPagination(p paginator.Paginator) Pagination {
+func NewPaginationMeta(p paginator.Paginator) PaginationMeta {
 
-	pagination := Pagination{}
+	pagination := PaginationMeta{}
 
 	hasNext, _ := p.HasNext()
 
