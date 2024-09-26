@@ -22,7 +22,7 @@ func serve() {
 	app.Initialize(cfg)
 
 	goose.SetDialect(string(goose.DialectSQLite3))
-	goose.Up(app.DB.DB, "migrations")
+	// goose.Up(app.DB.DB, "migrations")
 
 	app.Run(cfg.Port)
 }
