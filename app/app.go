@@ -19,7 +19,6 @@ type App struct {
 	DB     *sqlx.DB
 }
 
-// Initialize app routing
 func (a *App) Initialize(cfg *c.Config) {
 	a.DB = NewSQLiteConnection(cfg.Path)
 

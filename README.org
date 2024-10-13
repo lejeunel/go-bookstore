@@ -10,3 +10,5 @@ go test ./tests -v
 
 * TODO
 - Clean-up pagination logic in services
+* Resources
+  - [[hthttps://www.reddit.com/r/golang/comments/1amxza5/how_i_write_http_services_in_go_after_13_years/tps://www.reddit.com/r/golang/comments/1amxza5/how_i_write_http_services_in_go_after_13_years/]]
