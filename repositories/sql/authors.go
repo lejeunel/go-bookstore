@@ -81,7 +81,7 @@ func (r *SQLAuthorRepo) Slice(offset, length int, data interface{}) error {
 	return nil
 }
 
-func (r *SQLAuthorRepo) GetAuthorsOfBook(ctx context.Context, b *m.Book) ([]m.Author, error) {
+func (r *SQLAuthorRepo) GetAuthorsOfBook(ctx context.Context, b m.Book) ([]m.Author, error) {
 	var author_ids []string
 	var authors []m.Author
 

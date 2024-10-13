@@ -16,7 +16,7 @@ type BookRepo interface {
 type AuthorRepo interface {
 	Create(context.Context, *m.Author) (*m.Author, error)
 	GetOne(context.Context, string) (*m.Author, error)
-	GetAuthorsOfBook(context.Context, *m.Book) ([]m.Author, error)
+	GetAuthorsOfBook(context.Context, m.Book) ([]m.Author, error)
 	Nums() (int64, error)
 	Slice(offset, length int, data interface{}) error
 }

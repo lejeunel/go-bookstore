@@ -24,7 +24,7 @@ func (s *BookService) GetOne(ctx context.Context, id string) (*m.Book, error) {
 	if err != nil {
 		return nil, err
 	}
-	authors, err := s.AuthorRepo.GetAuthorsOfBook(ctx, book)
+	authors, err := s.AuthorRepo.GetAuthorsOfBook(ctx, *book)
 
 	if err != nil {
 		return nil, err
