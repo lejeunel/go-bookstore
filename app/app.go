@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
@@ -11,6 +12,9 @@ import (
 	s "go-bookstore/services"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
 )
 
 type App struct {
@@ -36,8 +40,24 @@ func (a *App) Initialize(cfg *c.Config) {
 }
 
 func (a *App) Run(port int) {
+	server := &http.Server{Addr: fmt.Sprintf(":%d", port),
+		Handler: a.Router}
+
+	go func() {
+		log.Fatal(server.ListenAndServe())
+	}()
 
 	log.Printf("Starting server on port %d...\n", port)
 	log.Printf("API docs: http://localhost:%d/docs\n", port)
-	http.ListenAndServe(fmt.Sprintf(":%d", port), a.Router)
+
+	stopC := make(chan os.Signal, 1)
+	signal.Notify(stopC, os.Interrupt)
+	<-stopC
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	log.Println("server stopping...")
+	defer cancel()
+
+	log.Fatal(server.Shutdown(ctx))
+
 }
