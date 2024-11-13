@@ -72,7 +72,7 @@ func TestRetrievingDeletedBookShouldFail(t *testing.T) {
 	AssertError(t, err)
 }
 
-func TestGetBookPaginated(t *testing.T) {
+func TestBookPagination(t *testing.T) {
 	s, ctx := NewTestServices(t)
 
 	nBooks := 20
@@ -86,7 +86,7 @@ func TestGetBookPaginated(t *testing.T) {
 	var retrievedNBooks int
 	var nextPage int = 1
 	for {
-		books, paginationMeta, _ := s.Books.GetMany(ctx, g.PaginationParams{Page: nextPage, PageSize: 2})
+		books, paginationMeta, _ := s.Books.GetOnePage(ctx, g.PaginationParams{Page: nextPage, PageSize: 2})
 		retrievedNBooks += len(books)
 		nextPage = paginationMeta.Next
 

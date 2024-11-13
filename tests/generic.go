@@ -50,3 +50,10 @@ func AssertError(t testing.TB, err error) {
 		t.Error("wanted an error but didn't get one")
 	}
 }
+
+func AssertNoError(t testing.TB, err error) {
+	t.Helper()
+	if err != nil {
+		t.Error("did not want an error but got one")
+	}
+}

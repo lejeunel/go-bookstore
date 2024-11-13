@@ -14,8 +14,8 @@ type AuthorHTTPController struct {
 	AuthorService *s.AuthorService
 }
 
-func (h *AuthorHTTPController) GetMany(ctx context.Context, pagin *g.PaginationParams) (*AuthorPaginatedOutput, error) {
-	authors, pagination, err := h.AuthorService.GetMany(ctx, *pagin)
+func (h *AuthorHTTPController) GetOnePage(ctx context.Context, pagin *g.PaginationParams) (*AuthorPaginatedOutput, error) {
+	authors, pagination, err := h.AuthorService.GetOnePage(ctx, *pagin)
 
 	if err != nil {
 		return nil, err

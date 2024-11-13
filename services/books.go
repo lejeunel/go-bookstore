@@ -46,7 +46,7 @@ func (s *BookService) GetOne(ctx context.Context, id string) (*m.Book, error) {
 
 }
 
-func (s *BookService) GetMany(ctx context.Context, in g.PaginationParams) ([]m.Book, *g.PaginationMeta, error) {
+func (s *BookService) GetOnePage(ctx context.Context, in g.PaginationParams) ([]m.Book, *g.PaginationMeta, error) {
 	p, err := g.NewPaginator(s.BookRepo, in.PageSize, s.MaxPageSize, in.Page)
 	if err != nil {
 		return nil, nil, err

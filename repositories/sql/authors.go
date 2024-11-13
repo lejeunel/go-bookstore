@@ -95,7 +95,7 @@ func (r SQLAuthorRepo) GetAuthorsOfBook(ctx context.Context, b *m.Book) ([]m.Aut
 	err := r.Db.Select(&author_ids, "SELECT author_id FROM book_author_assoc WHERE book_id = ?", b.Id)
 
 	if err != nil {
-		return nil, e.ErrNotFound{Entity: "book", Criteria: "id", Value: b.Id.String(), Err: err}
+		return nil, &e.ErrNotFound{Entity: "book", Criteria: "id", Value: b.Id.String(), Err: err}
 	}
 
 	for _, id := range author_ids {

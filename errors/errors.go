@@ -11,8 +11,12 @@ type ErrNotFound struct {
 	Err      error
 }
 
-func (e ErrNotFound) Error() string {
+func (e *ErrNotFound) Error() string {
 	return fmt.Sprintf("Requested entity of type %s with %s:%s not found, %s", e.Entity, e.Criteria, e.Value, e.Err)
+}
+
+func (e *ErrNotFound) GetStatus() int {
+	return 404
 }
 
 type ErrForbiddenDeletingDependency struct {
@@ -26,7 +30,6 @@ func (e ErrForbiddenDeletingDependency) Error() string {
 		e.ParentEntity, e.ParentId, e.ChildEntity)
 }
 
-func NewErrorForbiddenDeletingDependency(parentEntity, parentId, childEntity string) ErrForbiddenDeletingDependency {
-	return ErrForbiddenDeletingDependency{ParentEntity: parentEntity,
-		ChildEntity: childEntity, ParentId: parentId}
+func (e *ErrForbiddenDeletingDependency) GetStatus() int {
+	return 403
 }

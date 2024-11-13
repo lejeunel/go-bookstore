@@ -25,8 +25,8 @@ func buildNestedBookRecord(b m.Book) BookOutputRecord {
 
 }
 
-func (h *BookHTTPController) GetMany(ctx context.Context, pagin *g.PaginationParams) (*BookPaginatedOutput, error) {
-	books, pagination, err := h.BookService.GetMany(ctx, *pagin)
+func (h *BookHTTPController) GetOnePage(ctx context.Context, pagin *g.PaginationParams) (*BookPaginatedOutput, error) {
+	books, pagination, err := h.BookService.GetOnePage(ctx, *pagin)
 
 	var out BookPaginatedOutput
 	for _, b := range books {

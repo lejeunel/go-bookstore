@@ -27,7 +27,7 @@ func AddRoutes(api huma.API, prefix string, bookService s.BookService,
 		Path:        prefix + "/books",
 		Tags:        []string{"Books"},
 		Summary:     "Get several books",
-	}, bookController.GetMany)
+	}, bookController.GetOnePage)
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "post-book",
@@ -61,7 +61,7 @@ func AddRoutes(api huma.API, prefix string, bookService s.BookService,
 		Path:        prefix + "/authors",
 		Tags:        []string{"Authors"},
 		Summary:     "Get many authors",
-	}, authorController.GetMany)
+	}, authorController.GetOnePage)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-author",

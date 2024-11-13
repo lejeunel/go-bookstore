@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGetAuthorPaginated(t *testing.T) {
+func TestAuthorPagination(t *testing.T) {
 	s, ctx := NewTestServices(t)
 
 	nAuthors := 20
@@ -21,7 +21,7 @@ func TestGetAuthorPaginated(t *testing.T) {
 	var retrievedNAuthors int
 	var nextPage int = 1
 	for {
-		authors, paginationMeta, _ := s.Authors.GetMany(ctx, g.PaginationParams{Page: nextPage, PageSize: 2})
+		authors, paginationMeta, _ := s.Authors.GetOnePage(ctx, g.PaginationParams{Page: nextPage, PageSize: 2})
 		retrievedNAuthors += len(authors)
 		nextPage = paginationMeta.Next
 
@@ -67,4 +67,14 @@ func TestDeletingAssignedAuthorShouldFail(t *testing.T) {
 	err := s.Authors.Delete(ctx, author.Id.String())
 
 	AssertError(t, err)
+}
+
+func TestDeletingAuthorWithNoAssociatedBook(t *testing.T) {
+	s, ctx := NewTestServices(t)
+
+	author := m.Author{FirstName: "a", LastName: "b"}
+	s.Authors.Create(ctx, &author)
+	err := s.Authors.Delete(ctx, author.Id.String())
+	AssertNoError(t, err)
+
 }

@@ -36,7 +36,7 @@ func (s *AuthorService) Delete(ctx context.Context, id string) error {
 	fmt.Println(author)
 	books, err := s.BookRepo.GetBooksOfAuthor(ctx, author)
 	if len(books) > 0 {
-		return e.NewErrorForbiddenDeletingDependency("author", author.Id.String(), "book")
+		return e.ErrForbiddenDeletingDependency{"author", author.Id.String(), "book"}
 	}
 
 	return s.AuthorRepo.Delete(ctx, id)
@@ -46,7 +46,7 @@ func (s *AuthorService) GetOne(ctx context.Context, id string) (*m.Author, error
 	return s.AuthorRepo.GetOne(ctx, id)
 }
 
-func (s *AuthorService) GetMany(ctx context.Context, in g.PaginationParams) ([]m.Author, *g.PaginationMeta, error) {
+func (s *AuthorService) GetOnePage(ctx context.Context, in g.PaginationParams) ([]m.Author, *g.PaginationMeta, error) {
 	p, err := g.NewPaginator(s.AuthorRepo, in.PageSize, s.MaxPageSize, in.Page)
 	if err != nil {
 		return nil, nil, err

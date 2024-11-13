@@ -46,7 +46,7 @@ func (r SQLBookRepo) GetOne(ctx context.Context, id string) (*m.Book, error) {
 	err := r.Db.Get(&b, "SELECT id,title FROM books WHERE id=?", id)
 
 	if err != nil {
-		return nil, e.ErrNotFound{Entity: "book", Criteria: "id", Value: id, Err: err}
+		return nil, &e.ErrNotFound{Entity: "book", Criteria: "id", Value: id, Err: err}
 	}
 
 	return &b, nil
@@ -120,7 +120,7 @@ func (r SQLBookRepo) GetBooksOfAuthor(ctx context.Context, a *m.Author) ([]m.Boo
 	fmt.Println("2")
 
 	if err != nil {
-		return nil, e.ErrNotFound{Entity: "author", Criteria: "id", Value: a.Id.String(), Err: err}
+		return nil, &e.ErrNotFound{Entity: "author", Criteria: "id", Value: a.Id.String(), Err: err}
 	}
 
 	fmt.Println("3")
