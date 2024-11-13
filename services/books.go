@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	g "go-bookstore/generic"
 	m "go-bookstore/models"
 	r "go-bookstore/repositories"
 )
@@ -14,9 +15,18 @@ type BookService struct {
 	DefaultPageSize int
 }
 
+func NewBookService(bookRepo r.BookRepo, authorRepo r.AuthorRepo, maxPageSize, defaultPageSize int) *BookService {
+	return &BookService{BookRepo: bookRepo, AuthorRepo: authorRepo, MaxPageSize: maxPageSize, DefaultPageSize: defaultPageSize}
+}
+
 func (s *BookService) Create(ctx context.Context, b *m.Book) (*m.Book, error) {
 
 	return s.BookRepo.Create(ctx, b)
+}
+
+func (s *BookService) Delete(ctx context.Context, id string) error {
+
+	return s.BookRepo.Delete(ctx, id)
 }
 
 func (s *BookService) GetOne(ctx context.Context, id string) (*m.Book, error) {
@@ -24,7 +34,7 @@ func (s *BookService) GetOne(ctx context.Context, id string) (*m.Book, error) {
 	if err != nil {
 		return nil, err
 	}
-	authors, err := s.AuthorRepo.GetAuthorsOfBook(ctx, *book)
+	authors, err := s.AuthorRepo.GetAuthorsOfBook(ctx, book)
 
 	if err != nil {
 		return nil, err
@@ -36,8 +46,8 @@ func (s *BookService) GetOne(ctx context.Context, id string) (*m.Book, error) {
 
 }
 
-func (s *BookService) GetMany(ctx context.Context, in m.PaginationParams) ([]m.Book, *m.PaginationMeta, error) {
-	p, err := NewPaginator(s.BookRepo, in.PageSize, s.MaxPageSize, in.Page)
+func (s *BookService) GetMany(ctx context.Context, in g.PaginationParams) ([]m.Book, *g.PaginationMeta, error) {
+	p, err := g.NewPaginator(s.BookRepo, in.PageSize, s.MaxPageSize, in.Page)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -49,7 +59,7 @@ func (s *BookService) GetMany(ctx context.Context, in m.PaginationParams) ([]m.B
 		return nil, nil, err
 	}
 
-	paginationMeta := m.NewPaginationMeta(p)
+	paginationMeta := g.NewPaginationMeta(p)
 	return books, &paginationMeta, nil
 
 }

@@ -1,55 +1,31 @@
 package tests
 
 import (
-	"encoding/json"
 	"fmt"
+	g "go-bookstore/generic"
 	m "go-bookstore/models"
 	"testing"
 )
 
-func TestGetOneAuthor(t *testing.T) {
-
-	api := NewTestService(t)
-	author := map[string]any{"first_name": "john", "last_name": "doe"}
-
-	resp := api.Post("/authors", author)
-
-	var createdAuthor, retrievedAuthor *m.AuthorOutputRecord
-	json.NewDecoder(resp.Body).Decode(&createdAuthor)
-
-	resp = api.Get("/authors/" + createdAuthor.Id.String())
-	json.NewDecoder(resp.Body).Decode(&retrievedAuthor)
-
-	if retrievedAuthor.Id != createdAuthor.Id {
-		t.Fatalf("Unexpected retrieved author. Created %v, retrieved %v", createdAuthor, retrievedAuthor)
-
-	}
-
-}
-
 func TestGetAuthorPaginated(t *testing.T) {
-	api := NewTestService(t)
+	s, ctx := NewTestServices(t)
+
 	nAuthors := 20
 
 	for i := 0; i < nAuthors; i++ {
-		first_name := fmt.Sprintf("first_name %d", i)
-		last_name := fmt.Sprintf("last_name %d", i)
-		author := map[string]any{"first_name": first_name,
-			"last_name": last_name}
-		api.Post("/authors", author)
+		author := m.Author{FirstName: fmt.Sprintf("first_name %d", i),
+			LastName: fmt.Sprintf("last_name %d", i)}
+		s.Authors.Create(ctx, &author)
 	}
 
 	var retrievedNAuthors int
 	var nextPage int = 1
 	for {
-		var results *m.AuthorPaginatedOutputBody
-		url := fmt.Sprintf("/authors?page=%d", nextPage)
-		resp := api.Get(url)
-		json.NewDecoder(resp.Body).Decode(&results)
-		retrievedNAuthors += len(results.Data)
-		nextPage = results.Pagination.Next
+		authors, paginationMeta, _ := s.Authors.GetMany(ctx, g.PaginationParams{Page: nextPage, PageSize: 2})
+		retrievedNAuthors += len(authors)
+		nextPage = paginationMeta.Next
 
-		if nextPage == 0 {
+		if paginationMeta.Next == 0 {
 			break
 		}
 	}
@@ -58,4 +34,37 @@ func TestGetAuthorPaginated(t *testing.T) {
 
 	}
 
+}
+
+func TestRetrievingDeletedAuthorShouldFail(t *testing.T) {
+	s, ctx := NewTestServices(t)
+
+	author := m.Author{FirstName: "a", LastName: "b"}
+	s.Authors.Create(ctx, &author)
+	s.Authors.Delete(ctx, author.Id.String())
+	_, err := s.Authors.GetOne(ctx, author.Id.String())
+
+	AssertError(t, err)
+}
+
+func TestDateOfBirthValidation(t *testing.T) {
+	s, ctx := NewTestServices(t)
+
+	author := m.Author{FirstName: "a", LastName: "b", DateOfBirth: "not long ago"}
+	_, err := s.Authors.Create(ctx, &author)
+
+	AssertError(t, err)
+}
+
+func TestDeletingAssignedAuthorShouldFail(t *testing.T) {
+	s, ctx := NewTestServices(t)
+
+	book := m.Book{Title: "a"}
+	author := m.Author{FirstName: "a", LastName: "b"}
+	s.Authors.Create(ctx, &author)
+	s.Books.Create(ctx, &book)
+	s.Books.AssignAuthorToBook(ctx, book.Id.String(), author.Id.String())
+	err := s.Authors.Delete(ctx, author.Id.String())
+
+	AssertError(t, err)
 }

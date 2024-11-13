@@ -12,5 +12,4 @@ var embedMigrations embed.FS
 func main() {
 	goose.SetBaseFS(embedMigrations)
 	cmd.Execute()
-
 }

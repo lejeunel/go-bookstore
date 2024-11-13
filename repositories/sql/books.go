@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	e "go-bookstore/errors"
 	m "go-bookstore/models"
 	"time"
 )
@@ -15,13 +16,13 @@ type SQLBookRepo struct {
 	Db *sqlx.DB
 }
 
-func NewSQLBookRepo(db *sqlx.DB) *SQLBookRepo {
+func NewSQLBookRepo(db *sqlx.DB) SQLBookRepo {
 
-	return &SQLBookRepo{Db: db}
+	return SQLBookRepo{Db: db}
 
 }
 
-func (r *SQLBookRepo) Create(ctx context.Context, b *m.Book) (*m.Book, error) {
+func (r SQLBookRepo) Create(ctx context.Context, b *m.Book) (*m.Book, error) {
 	b.Id = uuid.New()
 	now := time.Now().String()
 	query := "INSERT INTO books (id, title, created_at, updated_at) VALUES (?, ?, ?, ?)"
@@ -34,19 +35,24 @@ func (r *SQLBookRepo) Create(ctx context.Context, b *m.Book) (*m.Book, error) {
 
 	return b, nil
 }
+func (r SQLBookRepo) Delete(ctx context.Context, id string) error {
 
-func (r *SQLBookRepo) GetOne(ctx context.Context, id string) (*m.Book, error) {
+	_, err := r.Db.Exec("DELETE FROM books WHERE id=?", id)
+	return err
+}
+
+func (r SQLBookRepo) GetOne(ctx context.Context, id string) (*m.Book, error) {
 	b := m.Book{}
 	err := r.Db.Get(&b, "SELECT id,title FROM books WHERE id=?", id)
 
 	if err != nil {
-		return nil, err
+		return nil, e.ErrNotFound{Entity: "book", Criteria: "id", Value: id, Err: err}
 	}
 
 	return &b, nil
 }
 
-func (r *SQLBookRepo) Nums() (int64, error) {
+func (r SQLBookRepo) Nums() (int64, error) {
 	var count int64
 	err := r.Db.QueryRow("SELECT COUNT(*) FROM books ").Scan(&count)
 
@@ -58,7 +64,7 @@ func (r *SQLBookRepo) Nums() (int64, error) {
 
 }
 
-func (r *SQLBookRepo) Slice(offset, length int, data interface{}) error {
+func (r SQLBookRepo) Slice(offset, length int, data interface{}) error {
 
 	rows, err := r.Db.Queryx("SELECT id, title FROM books LIMIT $1 OFFSET $2", length, offset)
 
@@ -82,7 +88,7 @@ func (r *SQLBookRepo) Slice(offset, length int, data interface{}) error {
 	return nil
 }
 
-func (r *SQLBookRepo) AssignAuthor(ctx context.Context, b *m.Book, a *m.Author) (*m.Book, error) {
+func (r SQLBookRepo) AssignAuthor(ctx context.Context, b *m.Book, a *m.Author) (*m.Book, error) {
 	var nAssocs int
 	_ = r.Db.QueryRow("SELECT COUNT(*) FROM book_author_assoc WHERE book_id = ? AND author_id = ?",
 		b.Id, a.Id).Scan(&nAssocs)
@@ -100,5 +106,33 @@ func (r *SQLBookRepo) AssignAuthor(ctx context.Context, b *m.Book, a *m.Author) 
 	}
 
 	return b, nil
+
+}
+
+func (r SQLBookRepo) GetBooksOfAuthor(ctx context.Context, a *m.Author) ([]m.Book, error) {
+
+	fmt.Println("world")
+	fmt.Println(a)
+	var book_ids []string
+	var books []m.Book
+
+	err := r.Db.Select(&book_ids, "SELECT book_id FROM book_author_assoc WHERE author_id = ?", a.Id)
+	fmt.Println("2")
+
+	if err != nil {
+		return nil, e.ErrNotFound{Entity: "author", Criteria: "id", Value: a.Id.String(), Err: err}
+	}
+
+	fmt.Println("3")
+	for _, id := range book_ids {
+		a, err := r.GetOne(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		books = append(books, *a)
+
+	}
+
+	return books, nil
 
 }

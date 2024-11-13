@@ -1,6 +1,7 @@
 package tests
 
 import (
+	ctx "context"
 	"github.com/danielgtaylor/huma/v2/humatest"
 	goose "github.com/pressly/goose/v3"
 	a "go-bookstore/app"
@@ -10,10 +11,15 @@ import (
 	"testing"
 )
 
-func NewTestService(t *testing.T) humatest.TestAPI {
-	_, api := humatest.New(t)
+type Services struct {
+	Books   *s.BookService
+	Authors *s.AuthorService
+}
+
+func NewTestServices(t *testing.T) (Services, ctx.Context) {
 	db := a.NewSQLiteConnection(":memory:")
 
+	goose.SetVerbose(false)
 	goose.SetDialect(string(goose.DialectSQLite3))
 	err := goose.Up(db.DB, "../migrations")
 	if err != nil {
@@ -22,12 +28,25 @@ func NewTestService(t *testing.T) humatest.TestAPI {
 	bookRepo := sql.NewSQLBookRepo(db)
 	authorRepo := sql.NewSQLAuthorRepo(db)
 
-	bookService := s.BookService{BookRepo: bookRepo, AuthorRepo: authorRepo, MaxPageSize: 2,
-		DefaultPageSize: 2}
+	bookService := s.NewBookService(bookRepo, authorRepo, 2, 2)
+	authorService := s.NewAuthorService(authorRepo, bookRepo, 2, 2)
 
-	authorService := s.AuthorService{AuthorRepo: authorRepo, MaxPageSize: 2,
-		DefaultPageSize: 2}
-	routes.AddRoutes(api, "", bookService, authorService)
+	return Services{Books: bookService, Authors: authorService}, ctx.Background()
+
+}
+
+func NewTestAPI(t *testing.T) humatest.TestAPI {
+	_, api := humatest.New(t)
+
+	testServices, _ := NewTestServices(t)
+	routes.AddRoutes(api, "", *testServices.Books, *testServices.Authors)
 
 	return api
+}
+
+func AssertError(t testing.TB, err error) {
+	t.Helper()
+	if err == nil {
+		t.Error("wanted an error but didn't get one")
+	}
 }

@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -21,21 +22,23 @@ type App struct {
 	Api    *huma.API
 	Router *http.ServeMux
 	DB     *sqlx.DB
+	Cfg    *c.Config
 }
 
-func (a *App) Initialize(cfg *c.Config) {
-	a.DB = NewSQLiteConnection(cfg.Path)
+func NewApp(cfg *c.Config) *App {
+	db := NewSQLiteConnection(cfg.Path)
 
-	bookRepo := sql.NewSQLBookRepo(a.DB)
-	authorRepo := sql.NewSQLAuthorRepo(a.DB)
+	bookRepo := sql.NewSQLBookRepo(db)
+	authorRepo := sql.NewSQLAuthorRepo(db)
 
-	bookService := s.BookService{BookRepo: bookRepo, AuthorRepo: authorRepo}
-	authorService := s.AuthorService{AuthorRepo: authorRepo}
+	bookService := s.NewBookService(&bookRepo, &authorRepo, cfg.MaxPageSize, cfg.MaxPageSize)
+	authorService := s.NewAuthorService(&authorRepo, &bookRepo, cfg.MaxPageSize, cfg.MaxPageSize)
 
-	a.Router = http.NewServeMux()
-	api := humago.New(a.Router, huma.DefaultConfig("Book Store API", "1.0.0"))
-	routes.AddRoutes(api, "/api/v1", bookService, authorService)
-	a.Api = &api
+	router := http.NewServeMux()
+	api := humago.New(router, huma.DefaultConfig("Book Store API", "1.0.0"))
+	routes.AddRoutes(api, "/api/v1", *bookService, *authorService)
+
+	return &App{Api: &api, Router: router, DB: db, Cfg: cfg}
 
 }
 
@@ -48,16 +51,17 @@ func (a *App) Run(port int) {
 	}()
 
 	log.Printf("Starting server on port %d...\n", port)
-	log.Printf("API docs: http://localhost:%d/docs\n", port)
+	log.Printf("API docs URL: <root>:%d/docs\n", port)
 
-	stopC := make(chan os.Signal, 1)
-	signal.Notify(stopC, os.Interrupt)
-	<-stopC
+	stopChan := make(chan os.Signal, 1)
+	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
+	<-stopChan
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	log.Println("server stopping...")
 	defer cancel()
 
 	log.Fatal(server.Shutdown(ctx))
+	log.Fatal(a.DB.Close())
 
 }

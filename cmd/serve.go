@@ -18,8 +18,7 @@ var serveCmd = &cobra.Command{
 
 func serve() {
 	cfg := c.NewConfig()
-	app := &a.App{}
-	app.Initialize(cfg)
+	app := a.NewApp(cfg)
 
 	goose.SetDialect(string(goose.DialectSQLite3))
 	// goose.Up(app.DB.DB, "migrations")

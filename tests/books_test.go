@@ -1,101 +1,96 @@
 package tests
 
 import (
-	"encoding/json"
 	"fmt"
+	g "go-bookstore/generic"
 	m "go-bookstore/models"
 	"testing"
 )
 
 func TestAddBook(t *testing.T) {
 
-	api := NewTestService(t)
+	s, ctx := NewTestServices(t)
 
-	var created_book *m.BookOutputRecord
-	resp := api.Post("/books", map[string]any{"title": "the title"})
-	json.NewDecoder(resp.Body).Decode(&created_book)
+	title := "the title"
+	book := m.Book{Title: title}
+	createdBook, _ := s.Books.Create(ctx, &book)
 
-	if resp.Code != 201 {
-		t.Fatalf("Unexpected status code: %d", resp.Code)
-	}
+	retrievedBook, _ := s.Books.GetOne(ctx, createdBook.Id.String())
 
-	var first_author, second_author *m.AuthorOutputRecord
-	resp = api.Post("/authors", map[string]any{
-		"first_name":    "john",
-		"last_name":     "doe",
-		"date_of_birth": "",
-	})
-	json.NewDecoder(resp.Body).Decode(&first_author)
-
-	resp = api.Post("/authors", map[string]any{
-		"first_name":    "jane",
-		"last_name":     "smith",
-		"date_of_birth": "",
-	})
-	json.NewDecoder(resp.Body).Decode(&second_author)
-
-	resp = api.Post("/books/" + created_book.Id.String() + "/authors/" + first_author.Id.String())
-	resp = api.Post("/books/" + created_book.Id.String() + "/authors/" + second_author.Id.String())
-
-	var final_book *m.BookOutputRecord
-	json.NewDecoder(resp.Body).Decode(&final_book)
-
-	if len(final_book.Authors) != 2 {
-		t.Fatalf("Expected to retrieve 2 associated authors, got %v", final_book.Authors)
-
-	}
-
-}
-func TestGetOneBook(t *testing.T) {
-
-	api := NewTestService(t)
-	book := map[string]any{"title": "the first title"}
-
-	resp := api.Post("/books", book)
-
-	var createdBook, retrievedBook *m.BookOutputRecord
-	json.NewDecoder(resp.Body).Decode(&createdBook)
-
-	resp = api.Get("/books/" + createdBook.Id.String())
-	json.NewDecoder(resp.Body).Decode(&retrievedBook)
-
-	if retrievedBook.Title != createdBook.Title {
-		t.Fatalf("Unexpected retrieved book. Created %v, retrieved %v", createdBook, retrievedBook)
-
+	if retrievedBook.Title != title {
+		t.Fatalf("Expected to retrieve book with title %v got %v", title, retrievedBook.Title)
 	}
 
 }
 
-func TestGetBookWithWrongIdReturns404(t *testing.T) {
-	api := NewTestService(t)
+func TestAssignAuthorsToBook(t *testing.T) {
 
-	resp := api.Get("/books/xyz")
-	if resp.Code != 404 {
-		t.Fatalf("Unexpected status code: %d, expected 404", resp.Code)
+	s, ctx := NewTestServices(t)
+
+	book := m.Book{Title: "the title"}
+	firstAuthor := m.Author{FirstName: "john", LastName: "doe", DateOfBirth: ""}
+	secondAuthor := m.Author{FirstName: "jane", LastName: "smith", DateOfBirth: ""}
+
+	s.Books.Create(ctx, &book)
+	s.Authors.Create(ctx, &firstAuthor)
+	s.Authors.Create(ctx, &secondAuthor)
+
+	s.Books.AssignAuthorToBook(ctx, book.Id.String(), firstAuthor.Id.String())
+	retrievedBook, _ := s.Books.AssignAuthorToBook(ctx, book.Id.String(), secondAuthor.Id.String())
+
+	if len(retrievedBook.Authors) != 2 {
+		t.Fatalf("Expected to retrieve 2 associated authors, got %v", len(retrievedBook.Authors))
 	}
+
+	if retrievedBook.Authors[0].FirstName != firstAuthor.FirstName {
+		t.Fatalf("Expected name of author %v, got %v", firstAuthor.FirstName, retrievedBook.Authors[0].FirstName)
+	}
+
+}
+
+func TestAssignAuthorToNonExistingBookShouldFail(t *testing.T) {
+	s, ctx := NewTestServices(t)
+
+	book := m.Book{Title: "the title"}
+	author := m.Author{FirstName: "john", LastName: "doe", DateOfBirth: ""}
+	s.Books.Create(ctx, &book)
+	s.Authors.Create(ctx, &author)
+
+	_, err := s.Books.AssignAuthorToBook(ctx, "bad-id", author.Id.String())
+
+	AssertError(t, err)
+}
+
+func TestRetrievingDeletedBookShouldFail(t *testing.T) {
+	s, ctx := NewTestServices(t)
+
+	book := m.Book{Title: "the title"}
+	s.Books.Create(ctx, &book)
+	s.Books.Delete(ctx, book.Id.String())
+	_, err := s.Books.GetOne(ctx, book.Id.String())
+
+	AssertError(t, err)
 }
 
 func TestGetBookPaginated(t *testing.T) {
-	api := NewTestService(t)
+	s, ctx := NewTestServices(t)
+
 	nBooks := 20
 
 	for i := 0; i < nBooks; i++ {
 		title := fmt.Sprintf("book %d", i)
-		book := map[string]any{"title": title}
-		api.Post("/books", book)
+		book := m.Book{Title: title}
+		s.Books.Create(ctx, &book)
 	}
 
 	var retrievedNBooks int
 	var nextPage int = 1
 	for {
-		var results *m.BookPaginatedOutputBody
-		url := fmt.Sprintf("/books?page=%d", nextPage)
-		resp := api.Get(url)
-		json.NewDecoder(resp.Body).Decode(&results)
-		retrievedNBooks += len(results.Data)
-		nextPage = results.Pagination.Next
+		books, paginationMeta, _ := s.Books.GetMany(ctx, g.PaginationParams{Page: nextPage, PageSize: 2})
+		retrievedNBooks += len(books)
+		nextPage = paginationMeta.Next
 
-		if nextPage == 0 {
+		if paginationMeta.Next == 0 {
 			break
 		}
 	}
