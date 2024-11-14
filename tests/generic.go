@@ -2,6 +2,7 @@ package tests
 
 import (
 	ctx "context"
+	"fmt"
 	"github.com/danielgtaylor/huma/v2/humatest"
 	goose "github.com/pressly/goose/v3"
 	a "go-bookstore/app"
