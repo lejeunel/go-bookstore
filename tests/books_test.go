@@ -48,6 +48,27 @@ func TestAssignAuthorsToBook(t *testing.T) {
 
 }
 
+func TestDeleteBook(t *testing.T) {
+	s, ctx := NewTestServices(t)
+
+	book := m.Book{Title: "the title"}
+	author := m.Author{FirstName: "john", LastName: "doe", DateOfBirth: ""}
+	s.Books.Create(ctx, &book)
+	s.Authors.Create(ctx, &author)
+
+	s.Books.AssignAuthorToBook(ctx, book.Id.String(), author.Id.String())
+	s.Books.Delete(ctx, book.Id.String())
+
+	books, err := s.Authors.GetBooksOfAuthor(ctx, &author)
+	if err != nil {
+		AssertNoError(t, err)
+	}
+	if len(books) != 0 {
+		t.Fatalf("Expected to retrieved 0 books, got %v", len(books))
+	}
+
+}
+
 func TestAssignAuthorToNonExistingBookShouldFail(t *testing.T) {
 	s, ctx := NewTestServices(t)
 

@@ -37,8 +37,9 @@ func (r SQLBookRepo) Create(ctx context.Context, b *m.Book) (*m.Book, error) {
 }
 func (r SQLBookRepo) Delete(ctx context.Context, id string) error {
 
-	_, err := r.Db.Exec("DELETE FROM books WHERE id=?", id)
-	return err
+	_, err_book := r.Db.Exec("DELETE FROM books WHERE id=?", id)
+	_, err_assoc := r.Db.Exec("DELETE FROM book_author_assoc WHERE book_id=?", id)
+	return errors.Join(err_book, err_assoc)
 }
 
 func (r SQLBookRepo) GetOne(ctx context.Context, id string) (*m.Book, error) {
@@ -111,25 +112,21 @@ func (r SQLBookRepo) AssignAuthor(ctx context.Context, b *m.Book, a *m.Author) (
 
 func (r SQLBookRepo) GetBooksOfAuthor(ctx context.Context, a *m.Author) ([]m.Book, error) {
 
-	fmt.Println("world")
-	fmt.Println(a)
 	var book_ids []string
 	var books []m.Book
 
 	err := r.Db.Select(&book_ids, "SELECT book_id FROM book_author_assoc WHERE author_id = ?", a.Id)
-	fmt.Println("2")
 
 	if err != nil {
 		return nil, &e.ErrNotFound{Entity: "author", Criteria: "id", Value: a.Id.String(), Err: err}
 	}
 
-	fmt.Println("3")
 	for _, id := range book_ids {
-		a, err := r.GetOne(ctx, id)
+		b, err := r.GetOne(ctx, id)
 		if err != nil {
 			return nil, err
 		}
-		books = append(books, *a)
+		books = append(books, *b)
 
 	}
 
