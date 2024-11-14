@@ -18,8 +18,7 @@ type Services struct {
 
 func NewTestServices(t *testing.T) (Services, ctx.Context) {
 	db := a.NewSQLiteConnection(":memory:")
-
-	goose.SetVerbose(false)
+	goose.SetLogger(goose.NopLogger())
 	goose.SetDialect(string(goose.DialectSQLite3))
 	err := goose.Up(db.DB, "../migrations")
 	if err != nil {
@@ -54,6 +53,6 @@ func AssertError(t testing.TB, err error) {
 func AssertNoError(t testing.TB, err error) {
 	t.Helper()
 	if err != nil {
-		t.Error("did not want an error but got one")
+		t.Error(fmt.Printf("did not want an error but got: %v", err))
 	}
 }
