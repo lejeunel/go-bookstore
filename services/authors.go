@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 	e "go-bookstore/errors"
 	g "go-bookstore/generic"
 	m "go-bookstore/models"
@@ -27,16 +26,23 @@ func (s *AuthorService) Create(ctx context.Context, a *m.Author) (*m.Author, err
 	return s.AuthorRepo.Create(ctx, a)
 }
 
+func (s *AuthorService) GetBooksOfAuthor(ctx context.Context, author *m.Author) ([]m.Book, error) {
+	books, err := s.BookRepo.GetBooksOfAuthor(ctx, author)
+	if err != nil {
+		return nil, err
+	}
+	return books, nil
+}
+
 func (s *AuthorService) Delete(ctx context.Context, id string) error {
 	author, err := s.AuthorRepo.GetOne(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(author)
 	books, err := s.BookRepo.GetBooksOfAuthor(ctx, author)
 	if len(books) > 0 {
-		return e.ErrForbiddenDeletingDependency{"author", author.Id.String(), "book"}
+		return e.ErrForbiddenDeletingDependency{ParentEntity: "author", ParentId: author.Id.String(), ChildEntity: "book"}
 	}
 
 	return s.AuthorRepo.Delete(ctx, id)
