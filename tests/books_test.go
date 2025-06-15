@@ -11,14 +11,12 @@ func TestAddBook(t *testing.T) {
 
 	s, ctx := NewTestServices(t)
 
-	title := "the title"
-	book := m.Book{Title: title}
+	book := m.Book{Title: "the title"}
 	createdBook, _ := s.Books.Create(ctx, &book)
-
 	retrievedBook, _ := s.Books.GetOne(ctx, createdBook.Id.String())
 
-	if retrievedBook.Title != title {
-		t.Fatalf("Expected to retrieve book with title %v got %v", title, retrievedBook.Title)
+	if retrievedBook.Title != createdBook.Title {
+		t.Fatalf("Expected to retrieve book with title %v got %v", createdBook.Title, retrievedBook.Title)
 	}
 
 }
@@ -36,7 +34,8 @@ func TestAssignAuthorsToBook(t *testing.T) {
 	s.Authors.Create(ctx, &secondAuthor)
 
 	s.Books.AssignAuthorToBook(ctx, book.Id.String(), firstAuthor.Id.String())
-	retrievedBook, _ := s.Books.AssignAuthorToBook(ctx, book.Id.String(), secondAuthor.Id.String())
+	s.Books.AssignAuthorToBook(ctx, book.Id.String(), secondAuthor.Id.String())
+	retrievedBook, _ := s.Books.GetOne(ctx, book.Id.String())
 
 	if len(retrievedBook.Authors) != 2 {
 		t.Fatalf("Expected to retrieve 2 associated authors, got %v", len(retrievedBook.Authors))
@@ -59,12 +58,13 @@ func TestDeleteBook(t *testing.T) {
 	s.Books.AssignAuthorToBook(ctx, book.Id.String(), author.Id.String())
 	s.Books.Delete(ctx, book.Id.String())
 
-	books, err := s.Authors.GetBooksOfAuthor(ctx, &author)
+	booksOfAuthor, err := s.Authors.GetBooksOfAuthor(ctx, &author)
 	if err != nil {
 		AssertNoError(t, err)
 	}
-	if len(books) != 0 {
-		t.Fatalf("Expected to retrieved 0 books, got %v", len(books))
+
+	if len(booksOfAuthor) != 0 {
+		t.Fatalf("Expected to retrieved 0 books, got %v", len(booksOfAuthor))
 	}
 
 }

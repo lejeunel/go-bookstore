@@ -14,9 +14,9 @@ type SQLAuthorRepo struct {
 	Db *sqlx.DB
 }
 
-func NewSQLAuthorRepo(db *sqlx.DB) SQLAuthorRepo {
+func NewSQLAuthorRepo(db *sqlx.DB) *SQLAuthorRepo {
 
-	return SQLAuthorRepo{Db: db}
+	return &SQLAuthorRepo{Db: db}
 
 }
 

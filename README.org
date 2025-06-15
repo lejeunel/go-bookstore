@@ -2,6 +2,11 @@
 
 * Installation
 * Usage
+
+#+begin_src sh
+go run .
+#+end_src
+
 * Testing
 
 #+begin_src sh

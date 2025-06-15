@@ -8,7 +8,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
-func AddRoutes(api huma.API, prefix string, bookService s.BookService,
+func AddAPIRoutes(api huma.API, prefix string, bookService s.BookService,
 	authorService s.AuthorService) {
 
 	bookController := &c.BookHTTPController{BookService: &bookService}

@@ -3,9 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humago"
-	"github.com/jmoiron/sqlx"
 	c "go-bookstore/config"
 	sql "go-bookstore/repositories/sql"
 	routes "go-bookstore/routes"
@@ -16,6 +13,10 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	"github.com/jmoiron/sqlx"
 )
 
 type App struct {
@@ -26,17 +27,18 @@ type App struct {
 }
 
 func NewApp(cfg *c.Config) *App {
+
 	db := NewSQLiteConnection(cfg.Path)
 
 	bookRepo := sql.NewSQLBookRepo(db)
 	authorRepo := sql.NewSQLAuthorRepo(db)
 
-	bookService := s.NewBookService(&bookRepo, &authorRepo, cfg.MaxPageSize, cfg.MaxPageSize)
-	authorService := s.NewAuthorService(&authorRepo, &bookRepo, cfg.MaxPageSize, cfg.MaxPageSize)
+	bookService := s.NewBookService(*bookRepo, *authorRepo, cfg.MaxPageSize, cfg.MaxPageSize)
+	authorService := s.NewAuthorService(*authorRepo, *bookRepo, cfg.MaxPageSize, cfg.MaxPageSize)
 
 	router := http.NewServeMux()
 	api := humago.New(router, huma.DefaultConfig("Book Store API", "1.0.0"))
-	routes.AddRoutes(api, "/api/v1", *bookService, *authorService)
+	routes.AddAPIRoutes(api, "/api/v1", *bookService, *authorService)
 
 	return &App{Api: &api, Router: router, DB: db, Cfg: cfg}
 

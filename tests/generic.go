@@ -39,7 +39,7 @@ func NewTestAPI(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
 
 	testServices, _ := NewTestServices(t)
-	routes.AddRoutes(api, "", *testServices.Books, *testServices.Authors)
+	routes.AddAPIRoutes(api, "", *testServices.Books, *testServices.Authors)
 
 	return api
 }

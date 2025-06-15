@@ -30,7 +30,7 @@ func (s *BookService) Delete(ctx context.Context, id string) error {
 }
 
 func (s *BookService) GetOne(ctx context.Context, id string) (*m.Book, error) {
-	book, err := s.BookRepo.GetOne(ctx, id)
+	book, err := s.BookRepo.Find(ctx, id)
 	if err != nil {
 		return nil, err
 	}

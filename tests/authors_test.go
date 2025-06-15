@@ -50,13 +50,13 @@ func TestRetrievingDeletedAuthorShouldFail(t *testing.T) {
 func TestDateOfBirthValidation(t *testing.T) {
 	s, ctx := NewTestServices(t)
 
-	author := m.Author{FirstName: "a", LastName: "b", DateOfBirth: "not long ago"}
+	author := m.Author{FirstName: "a", LastName: "b", DateOfBirth: "a long time ago"}
 	_, err := s.Authors.Create(ctx, &author)
 
 	AssertError(t, err)
 }
 
-func TestDeletingAssignedAuthorShouldFail(t *testing.T) {
+func TestDeleteAssignedAuthorShouldFail(t *testing.T) {
 	s, ctx := NewTestServices(t)
 
 	book := m.Book{Title: "a"}
@@ -69,7 +69,7 @@ func TestDeletingAssignedAuthorShouldFail(t *testing.T) {
 	AssertError(t, err)
 }
 
-func TestDeletingAuthorWithNoAssociatedBook(t *testing.T) {
+func TestDeleteAuthor(t *testing.T) {
 	s, ctx := NewTestServices(t)
 
 	author := m.Author{FirstName: "a", LastName: "b"}

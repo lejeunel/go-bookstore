@@ -16,9 +16,9 @@ type SQLBookRepo struct {
 	Db *sqlx.DB
 }
 
-func NewSQLBookRepo(db *sqlx.DB) SQLBookRepo {
+func NewSQLBookRepo(db *sqlx.DB) *SQLBookRepo {
 
-	return SQLBookRepo{Db: db}
+	return &SQLBookRepo{Db: db}
 
 }
 
@@ -42,7 +42,7 @@ func (r SQLBookRepo) Delete(ctx context.Context, id string) error {
 	return errors.Join(err_book, err_assoc)
 }
 
-func (r SQLBookRepo) GetOne(ctx context.Context, id string) (*m.Book, error) {
+func (r SQLBookRepo) Find(ctx context.Context, id string) (*m.Book, error) {
 	b := m.Book{}
 	err := r.Db.Get(&b, "SELECT id,title FROM books WHERE id=?", id)
 
@@ -122,7 +122,7 @@ func (r SQLBookRepo) GetBooksOfAuthor(ctx context.Context, a *m.Author) ([]m.Boo
 	}
 
 	for _, id := range book_ids {
-		b, err := r.GetOne(ctx, id)
+		b, err := r.Find(ctx, id)
 		if err != nil {
 			return nil, err
 		}

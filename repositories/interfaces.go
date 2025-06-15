@@ -8,7 +8,7 @@ import (
 type BookRepo interface {
 	Create(c.Context, *m.Book) (*m.Book, error)
 	Delete(c.Context, string) error
-	GetOne(c.Context, string) (*m.Book, error)
+	Find(c.Context, string) (*m.Book, error)
 	AssignAuthor(c.Context, *m.Book, *m.Author) (*m.Book, error)
 	GetBooksOfAuthor(c.Context, *m.Author) ([]m.Book, error)
 	Nums() (int64, error)
